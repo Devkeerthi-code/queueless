@@ -32,10 +32,10 @@ export function StaffManager({ staff, selfId }: { staff: Staff[]; selfId: string
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
-      <Panel title="People with staff logins">
-        <ul className="divide-y divide-line">
+      <Panel title="Staff passes">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {staff.map((s) => (
-            <li key={s.id} className="flex items-center gap-3 py-3">
+            <li key={s.id} className="punched flex items-center gap-3 rounded-[3px] bg-sunken px-4 pb-3 pt-8">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sunken text-sm font-bold" aria-hidden="true">
                 {s.name.slice(0, 1).toUpperCase()}
               </span>
@@ -44,15 +44,15 @@ export function StaffManager({ staff, selfId }: { staff: Staff[]; selfId: string
                   {s.name}
                   {s.id === selfId && <span className="font-normal text-ink-muted"> (you)</span>}
                 </span>
-                <span className="block truncate text-sm text-ink-muted">{s.email}</span>
+                <span className="block truncate font-mono text-xs text-ink-muted">{s.email}</span>
               </span>
-              <span className="rounded-[4px] border border-line px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">{ROLE[s.role] ?? s.role}</span>
+              <span className="rubber-stamp -rotate-6 text-[10px] text-stamp">{ROLE[s.role] ?? s.role}</span>
               {s.role !== "OWNER" && <RemoveButton staff={s} onDone={() => router.refresh()} />}
             </li>
           ))}
         </ul>
       </Panel>
-      <Panel title="Add a login">
+      <Panel title="Issue a new pass" edge="perf">
         <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
           <fieldset>
             <legend className="mb-1.5 text-sm font-medium">Works at</legend>
@@ -60,7 +60,7 @@ export function StaffManager({ staff, selfId }: { staff: Staff[]; selfId: string
               {(["COUNTER", "KITCHEN"] as const).map((r) => (
                 <label key={r} className="press">
                   <input type="radio" name="staff-role" className="peer sr-only" checked={form.role === r} onChange={() => setForm({ ...form, role: r })} />
-                  <span className="flex h-11 items-center justify-center rounded-slip border border-line text-sm font-semibold peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline-2 peer-focus-visible:outline-ink">
+                  <span className="flex h-11 items-center justify-center rounded-slip border border-line text-sm font-semibold peer-checked:border-ink peer-checked:bg-ink peer-checked:text-on-ink peer-focus-visible:outline-2 peer-focus-visible:outline-ink">
                     {ROLE[r]}
                   </span>
                 </label>

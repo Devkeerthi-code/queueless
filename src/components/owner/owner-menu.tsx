@@ -106,13 +106,13 @@ function Row({ item, on, onToggle, onEdit, onArchived }: { item: OwnerMenuItem; 
         <VegMark isVeg={item.isVeg} />
         <span className="truncate font-semibold">{item.name}</span>
       </div>
-      <span className="num text-right font-semibold">{formatPaise(item.pricePaise, { trimWhole: true })}</span>
-      <span className="num text-sm text-ink-muted md:text-right md:text-[15px] md:text-ink">
+      <span className="font-mono text-right font-semibold">{formatPaise(item.pricePaise, { trimWhole: true })}</span>
+      <span className="font-mono text-sm text-ink-muted md:text-right md:text-[15px] md:text-ink">
         <span className="md:hidden">Left today: </span>
         <span className={low ? "font-semibold text-warn" : ""}>{item.remaining}</span>
         <span className="text-ink-muted"> / {item.dailyQuantity}</span>
       </span>
-      <span className="num text-right text-sm text-ink-muted md:text-[15px]" title="Average sold on this weekday over the last 4 weeks, plus 10%">
+      <span className="text-right font-mono text-sm text-ink-muted md:text-[15px]" title="Average sold on this weekday over the last 4 weeks, plus 10%">
         <span className="md:hidden">Make tomorrow: </span>
         {item.suggestedTomorrow ?? "–"}
       </span>

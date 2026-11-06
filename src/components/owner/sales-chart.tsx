@@ -38,11 +38,11 @@ export function SalesChart({ sales }: { sales: OwnerOverview["sales"] }) {
         ))}
         {sales.map((d, i) => (
           <g key={d.day}>
-            <rect x={PAD.left + i * step + (step - barW) / 2} y={y(d.salesPaise)} width={barW} height={Math.max(0, PAD.top + innerH - y(d.salesPaise))} rx={2} className="fill-ink/80">
+            <rect x={PAD.left + i * step + (step - barW) / 2} y={y(d.salesPaise)} width={barW} height={Math.max(0, PAD.top + innerH - y(d.salesPaise))} rx={1} className="fill-ink/80">
               <title>{`${dayLabel.format(new Date(`${d.day}T00:00:00Z`))}: sales ${formatPaise(d.salesPaise)}, profit ${formatPaise(d.profitPaise)}, ${d.invoices} bills`}</title>
             </rect>
             {i % labelEvery === 0 && (
-              <text x={PAD.left + i * step + step / 2} y={H - 6} textAnchor="middle" className="fill-ink-muted text-[11px]">
+              <text x={PAD.left + i * step + step / 2} y={H - 6} textAnchor="middle" className="fill-ink-muted font-mono text-[11px]">
                 {dayLabel.format(new Date(`${d.day}T00:00:00Z`))}
               </text>
             )}
@@ -63,7 +63,7 @@ function Figure({ label, value, swatch }: { label: string; value: string; swatch
         <span className={`size-2.5 rounded-[2px] ${swatch}`} aria-hidden="true" />
         {label}
       </p>
-      <p className="num text-2xl font-bold">{value}</p>
+      <p className="font-mono text-2xl font-bold">{value}</p>
     </div>
   );
 }

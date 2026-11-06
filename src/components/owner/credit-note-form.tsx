@@ -44,7 +44,7 @@ export function CreditNoteForm({ invoiceId, lines, canRestock }: { invoiceId: st
           <li key={l.id} className="flex items-center gap-3 py-2">
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{l.name}</span>
-              <span className="num text-xs text-ink-muted">{l.refundable} of {l.quantity} refundable</span>
+              <span className="font-mono text-xs text-ink-muted">{l.refundable} of {l.quantity} refundable</span>
             </span>
             <label className="sr-only" htmlFor={`cn-${l.id}`}>
               Quantity of {l.name} to refund
@@ -56,7 +56,7 @@ export function CreditNoteForm({ invoiceId, lines, canRestock }: { invoiceId: st
                 min={0}
                 max={l.refundable}
                 inputMode="numeric"
-                className="num text-center"
+                className="font-mono text-center"
                 value={qty[l.id] ?? 0}
                 onChange={(e) => setQty({ ...qty, [l.id]: Math.max(0, Math.min(l.refundable, Number(e.target.value) || 0)) })}
               />
@@ -78,7 +78,7 @@ export function CreditNoteForm({ invoiceId, lines, canRestock }: { invoiceId: st
       </Field>
       <Button type="submit" variant="danger" pending={pending} disabled={chosen.length === 0 || reason.trim().length < 3}>
         Issue credit note
-        {chosen.length > 0 && <span className="num">· {formatPaise(chosen.reduce((s, l) => s + Math.round((l.totalPaise * qty[l.id]) / l.quantity), 0))}</span>}
+        {chosen.length > 0 && <span className="font-mono">· {formatPaise(chosen.reduce((s, l) => s + Math.round((l.totalPaise * qty[l.id]) / l.quantity), 0))}</span>}
       </Button>
     </form>
   );

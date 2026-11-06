@@ -25,7 +25,7 @@ export function SlotHeatmap({ cells }: { cells: OwnerOverview["heatmap"] }) {
                 Day
               </th>
               {minutes.map((m) => (
-                <th key={m} scope="col" className="num whitespace-nowrap px-0.5 font-medium text-ink-muted [writing-mode:vertical-rl] rotate-180">
+                <th key={m} scope="col" className="font-mono whitespace-nowrap px-0.5 font-medium text-ink-muted [writing-mode:vertical-rl] rotate-180">
                   {formatMinute(m)}
                 </th>
               ))}

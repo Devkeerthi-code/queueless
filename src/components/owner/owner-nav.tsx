@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "../ui/cn";
 
 const ITEMS = [
-  { href: "/owner", label: "Today", icon: "M3 13.5V8M8 13.5V2.5M13 13.5V6" },
+  { href: "/owner", label: "Day book", icon: "M3 13.5V8M8 13.5V2.5M13 13.5V6" },
   { href: "/owner/menu", label: "Menu", icon: "M3 4h10M3 8h10M3 12h6" },
   { href: "/owner/invoices", label: "Bills", icon: "M4 2h8v12l-2-1.2L8 14l-2-1.2L4 14zM6 6h4M6 9h4" },
   { href: "/owner/staff", label: "Staff", icon: "M8 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2" },
@@ -25,7 +25,7 @@ export function OwnerNav() {
             key={i.href}
             href={i.href}
             aria-current={isActive(path, i.href) ? "page" : undefined}
-            className={cn("flex h-10 items-center gap-3 rounded-slip px-3 text-[15px] font-medium", isActive(path, i.href) ? "bg-ink text-paper" : "text-ink-muted hover:bg-sunken hover:text-ink")}
+            className={cn("flex h-10 items-center gap-3 rounded-slip px-3 text-[15px] font-medium", isActive(path, i.href) ? "bg-ink text-on-ink" : "text-ink-muted hover:bg-sunken hover:text-ink")}
           >
             <NavIcon d={i.icon} />
             {i.label}
@@ -41,7 +41,7 @@ export function OwnerNav() {
           </Link>
         </div>
       </nav>
-      <nav aria-label="Owner" className="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden">
+      <nav aria-label="Owner" className="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-counter/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden">
         {ITEMS.map((i) => (
           <Link
             key={i.href}

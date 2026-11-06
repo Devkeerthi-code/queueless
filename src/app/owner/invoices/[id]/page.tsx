@@ -27,18 +27,18 @@ export default async function InvoicePage({ params }: PageProps<"/owner/invoices
       <div className="mb-6 mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">{SERIES[inv.series] ?? inv.series}</p>
-          <h1 className="num condensed text-4xl font-extrabold">{inv.number}</h1>
+          <h1 className="font-mono condensed text-4xl font-extrabold">{inv.number}</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            Token <span className="num font-semibold text-ink">{inv.token}</span> · {formatIstDateTime(new Date(inv.issuedAt))} · {inv.paymentMode === "UPI" ? "UPI" : "Cash"}
+            Token <span className="font-mono font-semibold text-ink">{inv.token}</span> · {formatIstDateTime(new Date(inv.issuedAt))} · {inv.paymentMode === "UPI" ? "UPI" : "Cash"}
           </p>
         </div>
         <PrintLinks invoiceId={inv.id} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <Panel title="Items">
+        <Panel title="Tax invoice · items" edge="torn">
           <div className="-mx-5 overflow-x-auto px-5">
-            <table className="num w-full min-w-[420px] text-sm">
+            <table className="w-full min-w-[420px] font-mono text-sm">
               <thead className="text-left text-xs text-ink-muted">
                 <tr className="border-b border-line">
                   <th scope="col" className="py-2 font-medium">Item</th>
@@ -64,7 +64,7 @@ export default async function InvoicePage({ params }: PageProps<"/owner/invoices
               </tbody>
             </table>
           </div>
-          <dl className="num ml-auto mt-4 grid w-64 grid-cols-2 gap-y-1 text-sm">
+          <dl className="font-mono ml-auto mt-4 grid w-64 grid-cols-2 gap-y-1 text-sm">
             <dt className="text-ink-muted">Taxable value</dt>
             <dd className="text-right">{formatPaise(inv.taxablePaise)}</dd>
             <dt className="text-ink-muted">GST</dt>
@@ -75,7 +75,7 @@ export default async function InvoicePage({ params }: PageProps<"/owner/invoices
         </Panel>
 
         <div className="flex flex-col gap-4">
-          <Panel title="Refund with a credit note">
+          <Panel title="Credit memo · refund">
             <CreditNoteForm invoiceId={inv.id} lines={inv.lines} canRestock={inv.canRestock} />
           </Panel>
           <Panel title="Credit notes">
@@ -86,8 +86,8 @@ export default async function InvoicePage({ params }: PageProps<"/owner/invoices
                 {inv.creditNotes.map((c) => (
                   <li key={c.id} className="flex flex-col gap-2 py-3">
                     <div className="flex justify-between gap-2">
-                      <span className="num font-semibold">{c.number}</span>
-                      <span className="num font-semibold text-danger">−{formatPaise(c.totalPaise)}</span>
+                      <span className="font-mono font-semibold">{c.number}</span>
+                      <span className="font-mono font-semibold text-danger">−{formatPaise(c.totalPaise)}</span>
                     </div>
                     <p className="text-sm text-ink-muted">
                       {formatIstDateTime(new Date(c.issuedAt))} · {c.reason}

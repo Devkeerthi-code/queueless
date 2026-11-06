@@ -44,7 +44,7 @@ export function BasicsFields({ value, onChange, errors }: Props) {
             aria-describedby="c-gstin-hint"
             value={value.gstin}
             onChange={(e) => setGstin(e.target.value)}
-            className="num uppercase tracking-wider"
+            className="font-mono uppercase tracking-wider"
             autoCapitalize="characters"
             spellCheck={false}
             maxLength={15}
@@ -97,7 +97,7 @@ export function HoursFields({ value, onChange, errors }: Props) {
           {dayNames.map((name, d) => (
             <label key={name} className="press">
               <input type="checkbox" className="peer sr-only" checked={value.openDays.includes(d)} onChange={() => toggleDay(d)} />
-              <span className="inline-flex h-10 min-w-12 items-center justify-center rounded-slip border border-line px-3 text-sm font-semibold text-ink-muted peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
+              <span className="inline-flex h-10 min-w-12 items-center justify-center rounded-slip border border-line px-3 text-sm font-semibold text-ink-muted peer-checked:border-ink peer-checked:bg-ink peer-checked:text-on-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
                 {name}
               </span>
             </label>

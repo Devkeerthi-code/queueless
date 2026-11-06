@@ -33,9 +33,9 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/owner/i
           {invoices.map((i) => (
             <li key={i.id}>
               <Link href={`/owner/invoices/${i.id}`} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-0.5 px-4 py-3 hover:bg-sunken sm:grid-cols-[180px_70px_minmax(0,1fr)_auto]">
-                <span className="num font-semibold">{i.number}</span>
-                <span className="num text-right font-semibold sm:order-last">{formatPaise(i.totalPaise)}</span>
-                <span className="num condensed text-lg font-bold text-ink-muted">{i.token}</span>
+                <span className="font-mono font-semibold">{i.number}</span>
+                <span className="font-mono text-right font-semibold sm:order-last">{formatPaise(i.totalPaise)}</span>
+                <span className="font-mono condensed text-lg font-bold text-ink-muted">{i.token}</span>
                 <span className="text-sm text-ink-muted">
                   {formatIstDateTime(new Date(i.issuedAt))} · {i.paymentMode === "UPI" ? "UPI" : "Cash"} · {i.source === "WALK_IN" ? "Walk-in" : "Pre-order"}
                   {i.creditedPaise > 0 && <span className="font-semibold text-danger"> · refunded {formatPaise(i.creditedPaise)}</span>}

@@ -120,7 +120,7 @@ export function ItemForm({ item, categories, onSaved }: { item: OwnerMenuItem | 
       {pricePaise !== null && !form.priceIncludesGst && <p className="-mt-2 text-sm text-ink-muted">Students pay about {formatPaise(pricePaise + Math.round((pricePaise * Number(form.gstRate || 0)) / 100))}.</p>}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Made per day" id="i-qty" error={err("dailyQuantity")} hint="Stock resets each morning.">
-          <Input {...fieldA11y("i-qty", err("dailyQuantity"), true)} type="number" min={0} inputMode="numeric" className="num" value={form.dailyQuantity} onChange={(e) => set("dailyQuantity", e.target.value)} />
+          <Input {...fieldA11y("i-qty", err("dailyQuantity"), true)} type="number" min={0} inputMode="numeric" className="font-mono" value={form.dailyQuantity} onChange={(e) => set("dailyQuantity", e.target.value)} />
         </Field>
         <Field label="Prep minutes" id="i-prep" error={err("prepMinutes")}>
           <Input {...fieldA11y("i-prep", err("prepMinutes"))} type="number" min={0} inputMode="numeric" className="num" value={form.prepMinutes} onChange={(e) => set("prepMinutes", e.target.value)} />
