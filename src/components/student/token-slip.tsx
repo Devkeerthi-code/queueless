@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cancelOrderAction } from "@/app/actions/orders";
 import { formatPaise } from "@/lib/money";
+import { formatIstTime } from "@/lib/time";
 import type { OrderView } from "@/server/views";
 import { TokenFace } from "../token-face";
 import { Button, buttonClass } from "../ui/button";
@@ -48,56 +49,63 @@ export function TokenSlip({ initial }: { initial: OrderView }) {
           {isActive && <LiveDot status={live} />}
         </div>
 
-        <TokenFace token={data.token} caption={`${data.canteenName} · today's token`}>
+        <TokenFace token={data.token} caption={`${data.canteenName} · token no.`}>
           <div className="mt-2 flex min-h-10 items-center justify-center gap-3" aria-live="polite">
             {data.status === "READY" ? (
               <Stamp tone="veg" land key="ready" className="text-xl">
                 Ready
               </Stamp>
             ) : data.status === "COLLECTED" ? (
-              <Stamp tone="ink">Collected</Stamp>
+              <Stamp tone="violet">Collected</Stamp>
             ) : data.status === "CANCELLED" ? (
               <Stamp tone="danger">Cancelled</Stamp>
             ) : data.status === "NO_SHOW" ? (
               <Stamp tone="danger">Missed</Stamp>
             ) : (
-              <p className="text-center font-semibold">{HEADLINE[data.status]}</p>
+              <p className="caps text-center text-ink-muted">{HEADLINE[data.status]}</p>
             )}
           </div>
           {data.slot && (
-            <p className="num mt-1 text-center text-sm text-ink-muted">
-              Pickup {data.slot.label} to {data.slot.endsLabel}
+            <p className="mt-1 text-center font-mono text-sm">
+              PICKUP {data.slot.label} – {data.slot.endsLabel}
             </p>
           )}
 
           {isActive && (
             <figure className="mx-auto mt-5 w-48">
-              <div className="rounded-slip bg-white p-2 [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={`Pickup QR code for token ${data.token}`} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+              <div className="rounded-[2px] bg-white p-2 shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)] [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={`Pickup QR code for token ${data.token}`} dangerouslySetInnerHTML={{ __html: qrSvg }} />
               <figcaption className="mt-2 text-center text-xs text-ink-muted">Show this at the counter, or say your token.</figcaption>
             </figure>
           )}
 
           <hr className="tear-line my-5" />
-          <ul className="space-y-2 text-[15px]">
+          <ul className="space-y-1.5 font-mono text-[14px]">
             {data.lines.map((l, i) => (
               <li key={i} className="flex items-center gap-2">
-                <VegMark isVeg={l.isVeg} />
-                <span className="num font-semibold">{l.quantity}×</span>
+                <VegMark isVeg={l.isVeg} className="size-3.5" />
+                <span>{l.quantity}×</span>
                 <span className="min-w-0 flex-1 truncate">{l.name}</span>
-                <span className="num">{formatPaise(l.totalPaise, { trimWhole: true })}</span>
+                <span>{formatPaise(l.totalPaise, { trimWhole: true })}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-4 flex items-baseline justify-between border-t border-line pt-3">
-            <span className="text-sm text-ink-muted">{data.paid ? "Paid" : data.invoice ? "Billed" : "Pay at counter (estimate)"}</span>
-            <span className="num text-2xl font-bold">{formatPaise(amount)}</span>
+          <p className="mt-3 flex items-baseline justify-between border-t border-dashed border-line pt-3 font-mono">
+            <span className="text-sm font-semibold">{data.paid ? "PAID" : data.invoice ? "BILLED" : isActive ? "PAY AT COUNTER" : "NOT BILLED"}</span>
+            <span className="text-2xl font-bold">{formatPaise(amount)}</span>
           </p>
+          <p className="mt-1 pb-1 text-right font-mono text-[11px] text-ink-muted">PLACED {formatIstTime(new Date(data.placedAt))}</p>
         </TokenFace>
       </div>
 
       <div className="flex flex-col gap-5 lg:pt-10">
         <h1 className="condensed text-4xl font-extrabold tracking-[-0.01em] lg:text-5xl">{HEADLINE[data.status] ?? data.status}</h1>
-        {data.status !== "CANCELLED" && data.status !== "NO_SHOW" && <StatusRail status={data.status} timeline={data.timeline} />}
+        {data.status !== "CANCELLED" && data.status !== "NO_SHOW" && (
+          <div className="lift">
+            <div className="paper edge-perf-x px-6 py-4">
+              <StatusRail status={data.status} timeline={data.timeline} />
+            </div>
+          </div>
+        )}
         {payFirst && <PayFirstNotice amount={amount} upiLink={data.upiLink} />}
         {isActive && !payFirst && data.upiLink && !data.paid && (
           <a href={data.upiLink} className={buttonClass("outline", "lg", "w-full")}>

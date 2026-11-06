@@ -86,39 +86,46 @@ export function MenuScreen({ initial }: { initial: StudentMenuView }) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-32 pt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:pb-12">
-      <div className="flex min-w-0 flex-col gap-5">
-        <MenuHeading canteen={data.canteen} nextSlot={nextSlot} status={status} />
+    <div className="mx-auto max-w-6xl px-3 pb-36 pt-4 sm:px-4 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:pb-12">
+      <div className="flex min-w-0 flex-col gap-4">
         <ActiveOrders orders={data.activeOrders} />
         {data.usual.length > 0 && nextSlot !== null && (
           <UsualCard usual={data.usual} items={data.items} nextSlot={nextSlot} pending={order.pending} onReorder={(l, s: SlotView) => place(l, s.startsAt, true)} onAddToTray={addUsualToTray} />
         )}
         {nextSlot === null && <ClosedNotice canteen={data.canteen} anySlots={upcomingSlots(data.slots).length > 0} />}
 
-        {data.items.length === 0 ? (
-          <EmptyState title="The menu is empty today">The canteen hasn&apos;t added today&apos;s items yet. Check back in a bit.</EmptyState>
-        ) : (
-          <>
-            <nav aria-label="Categories" className="no-scrollbar sticky top-14 z-10 -mx-4 flex gap-2 overflow-x-auto bg-paper/95 px-4 py-2 backdrop-blur-sm lg:mx-0 lg:px-0">
-              {chips.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  aria-pressed={category === c}
-                  onClick={() => setCategory(c)}
-                  className={cn(
-                    "press h-9 shrink-0 rounded-full border px-4 text-sm font-semibold",
-                    category === c ? "border-ink bg-ink text-paper" : "border-line bg-surface text-ink-muted hover:text-ink",
-                  )}
-                >
-                  {c}
-                </button>
-              ))}
-            </nav>
-            {shown.length === 0 ? (
-              <EmptyState title="No favourites here yet">Tap the star next to an item to keep it at the top.</EmptyState>
+        {data.items.length > 0 && (
+          <nav aria-label="Categories" className="no-scrollbar sticky top-14 z-10 -mx-3 flex gap-1.5 overflow-x-auto bg-counter/92 px-3 py-2 backdrop-blur-sm sm:-mx-4 sm:px-4 lg:mx-0 lg:px-0">
+            {chips.map((c) => (
+              <button
+                key={c}
+                type="button"
+                aria-pressed={category === c}
+                onClick={() => setCategory(c)}
+                className={cn(
+                  "press h-9 shrink-0 rounded-[3px] px-3.5 text-sm font-semibold shadow-[0_1px_0_rgb(0_0_0/0.15)]",
+                  category === c ? "bg-accent text-on-accent" : "bg-surface text-ink-muted hover:text-ink",
+                )}
+              >
+                {c}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        <section aria-labelledby="rate-card" className="lift">
+          <div className="paper edge-torn-b">
+            <RateCardHeading canteen={data.canteen} day={data.slots[0]?.startsAt ?? null} nextSlot={nextSlot} status={status} />
+            {data.items.length === 0 ? (
+              <EmptyState title="Nothing on the rate card yet" className="m-4">
+                The canteen hasn&apos;t added today&apos;s items. Check back in a bit.
+              </EmptyState>
+            ) : shown.length === 0 ? (
+              <EmptyState title="No favourites yet" className="m-4">
+                Tap the star next to an item to keep it here.
+              </EmptyState>
             ) : (
-              <ul className="slip px-4" aria-label={`${category} items`}>
+              <ul aria-label={`${category} items`}>
                 {shown.map((item) => (
                   <MenuItemRow
                     key={item.id}
@@ -131,8 +138,8 @@ export function MenuScreen({ initial }: { initial: StudentMenuView }) {
                 ))}
               </ul>
             )}
-          </>
-        )}
+          </div>
+        </section>
       </div>
 
       <div className="hidden lg:block">
@@ -140,16 +147,16 @@ export function MenuScreen({ initial }: { initial: StudentMenuView }) {
       </div>
       <TrayBar lines={lines} onCheckout={openCheckout} disabled={nextSlot === null} />
 
-      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Pick a pickup time" description={`Orders close ${data.canteen.cutoffMinutes} min before each slot.`}>
+      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Pick a pickup time" description={`Ordering closes ${data.canteen.cutoffMinutes} min before each slot.`}>
         <div className="flex flex-col gap-5 p-5">
           {upcomingSlots(data.slots).length === 0 ? (
             <p className="text-ink-muted">No pickup times left today.</p>
           ) : (
             <SlotPicker slots={data.slots} value={chosenSlot?.startsAt ?? null} onChange={setSlot} />
           )}
-          <div className="flex items-center justify-between border-t border-line pt-4">
-            <span className="text-sm text-ink-muted">Pay at the counter when you collect</span>
-            <span className="num text-xl font-bold">{formatPaise(trayTotal(lines), { trimWhole: true })}</span>
+          <div className="flex items-baseline justify-between border-t border-dashed border-line pt-4 font-mono">
+            <span className="text-sm">TOTAL · PAY AT COUNTER</span>
+            <span className="text-xl font-bold">{formatPaise(trayTotal(lines), { trimWhole: true })}</span>
           </div>
           <Button
             variant="accent"
@@ -158,7 +165,7 @@ export function MenuScreen({ initial }: { initial: StudentMenuView }) {
             disabled={!chosenSlot || lines.length === 0}
             onClick={() => chosenSlot && place(lines, chosenSlot.startsAt, false)}
           >
-            {order.pending ? "Placing order" : chosenSlot ? `Place order for ${chosenSlot.label}` : "Pick a time"}
+            {order.pending ? "Printing your token" : chosenSlot ? `Print token for ${chosenSlot.label}` : "Pick a time"}
           </Button>
         </div>
       </Sheet>
@@ -166,28 +173,35 @@ export function MenuScreen({ initial }: { initial: StudentMenuView }) {
   );
 }
 
-function MenuHeading({ canteen, nextSlot, status }: { canteen: StudentMenuView["canteen"]; nextSlot: SlotView | null; status: PollStatus }) {
+/** The printed head of the rate card: who, when, and whether this sheet is live. */
+const DAY = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", timeZone: "Asia/Kolkata" });
+
+function RateCardHeading({ canteen, day, nextSlot, status }: { canteen: StudentMenuView["canteen"]; day: string | null; nextSlot: SlotView | null; status: PollStatus }) {
   return (
-    <div className="flex items-end justify-between gap-3">
-      <div>
-        <h1 className="condensed text-4xl font-extrabold tracking-[-0.01em]">Today&apos;s menu</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          {canteen.opensAt} to {canteen.closesAt}
-          {nextSlot && (
-            <>
-              {" · "}next pickup <span className="num font-semibold text-ink">{nextSlot.label}</span>
-            </>
-          )}
-        </p>
+    <header className="border-b-2 border-ink px-4 pb-3 pt-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="caps text-ink-muted">{canteen.name}</p>
+        <LiveDot status={status} />
       </div>
-      <LiveDot status={status} />
-    </div>
+      <h1 id="rate-card" className="condensed mt-1 text-5xl font-extrabold uppercase leading-none tracking-[-0.01em]">
+        Rate card
+      </h1>
+      <p className="mt-2 font-mono text-[13px] text-ink-muted">
+        {day && `${DAY.format(new Date(day)).toUpperCase()} · `}
+        {canteen.opensAt}–{canteen.closesAt}
+        {nextSlot && (
+          <>
+            {" · "}NEXT PICKUP <span className="font-semibold text-ink">{nextSlot.label}</span>
+          </>
+        )}
+      </p>
+    </header>
   );
 }
 
 function ClosedNotice({ canteen, anySlots }: { canteen: StudentMenuView["canteen"]; anySlots: boolean }) {
   return (
-    <div className="hatched rounded-slip border border-line bg-surface px-4 py-3">
+    <div className="paper hatched edge-perf-x px-5 py-3">
       <p className="font-semibold">{anySlots ? "Every pickup slot left today is full" : "Ordering is closed for today"}</p>
       <p className="text-sm text-ink-muted">
         {anySlots ? "Slots free up when someone cancels. This page updates on its own." : `No more pickup times today. The canteen is open ${canteen.opensAt} to ${canteen.closesAt} on working days.`}

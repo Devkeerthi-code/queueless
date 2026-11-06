@@ -2,68 +2,79 @@
 
 import { formatPaise } from "@/lib/money";
 import { Button } from "../ui/button";
+import { cn } from "../ui/cn";
 import { VegMark } from "../ui/veg-mark";
 import { linePaise, trayCount, trayTotal, type TrayLine } from "./tray";
 
-/** Sticky bar on phones: count, total, and the one button that matters. */
+/** Phones: the bill pinned to the bottom edge, showing the last line printed and the total. */
 export function TrayBar({ lines, onCheckout, disabled }: { lines: TrayLine[]; onCheckout: () => void; disabled: boolean }) {
   if (lines.length === 0) return null;
   const count = trayCount(lines);
   const total = trayTotal(lines);
+  const last = lines[lines.length - 1];
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 animate-rise px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
+    <div className="lift fixed inset-x-0 bottom-0 z-20 lg:hidden">
       <button
         type="button"
         onClick={onCheckout}
         disabled={disabled}
-        className="press flex h-14 w-full items-center gap-3 rounded-slip bg-ink px-4 text-paper shadow-[0_8px_24px_rgb(0_0_0/0.18)] disabled:opacity-60"
+        className="paper edge-torn-t flex w-full flex-col px-4 pb-[max(12px,env(safe-area-inset-bottom))] text-left disabled:cursor-not-allowed"
+        aria-label={`Bill: ${count} ${count === 1 ? "item" : "items"}, ${formatPaise(total)}. ${disabled ? "Ordering is closed" : "Pick a pickup time"}`}
       >
-        <span className="num grid h-8 min-w-8 place-items-center overflow-hidden rounded-[4px] bg-accent px-1.5 text-sm font-bold text-on-accent">
-          <span key={count} className="animate-roll">
-            {count}
+        <span key={`${last.item.id}-${last.quantity}`} className="flex animate-feed items-center gap-2 font-mono text-[13px] text-ink-muted">
+          <span>{last.quantity}×</span>
+          <span className="min-w-0 flex-1 truncate">{last.item.name}</span>
+          <span>{formatPaise(linePaise(last.item, last.quantity), { trimWhole: true })}</span>
+        </span>
+        <span className="mt-1.5 flex items-center gap-3 border-t border-dashed border-line pt-2">
+          <span className="font-mono text-sm font-semibold">
+            BILL · <span key={count} className="inline-block animate-roll">{count}</span> {count === 1 ? "ITEM" : "ITEMS"}
           </span>
+          <span key={total} className="ml-auto animate-roll font-mono text-xl font-bold">
+            {formatPaise(total, { trimWhole: true })}
+          </span>
+          <span className={cn("rounded-[3px] px-3 py-2 text-sm font-semibold", disabled ? "bg-sunken text-ink-muted" : "bg-ink text-on-ink")}>{disabled ? "Ordering closed" : "Pick time →"}</span>
         </span>
-        <span className="font-semibold">{count === 1 ? "item" : "items"}</span>
-        <span key={total} className="num ml-auto animate-roll font-bold">
-          {formatPaise(total, { trimWhole: true })}
-        </span>
-        <span className="font-semibold">Pick time →</span>
       </button>
     </div>
   );
 }
 
-/** The desktop tray: a receipt in the right column. */
+/** Desktop: the bill as a thermal receipt in the right column, one printed line per item. */
 export function TrayPanel({ lines, onCheckout, disabled }: { lines: TrayLine[]; onCheckout: () => void; disabled: boolean }) {
   return (
-    <aside aria-label="Your tray" className="slip sticky top-20 hidden p-5 lg:block">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">Your tray</h2>
-      {lines.length === 0 ? (
-        <p className="mt-6 pb-4 text-center text-sm text-ink-muted">Nothing yet. Tap Add on anything in the menu.</p>
-      ) : (
-        <>
-          <ul className="mt-4 space-y-2.5">
-            {lines.map((l) => (
-              <li key={l.item.id} className="flex items-center gap-2 text-[15px]">
-                <VegMark isVeg={l.item.isVeg} />
-                <span className="num font-semibold">{l.quantity}×</span>
-                <span className="min-w-0 flex-1 truncate">{l.item.name}</span>
-                <span className="num">{formatPaise(linePaise(l.item, l.quantity), { trimWhole: true })}</span>
-              </li>
-            ))}
-          </ul>
-          <hr className="tear-line my-4" />
-          <p className="flex items-baseline justify-between">
-            <span className="text-sm text-ink-muted">Pay at counter</span>
-            <span key={trayTotal(lines)} className="num animate-roll text-2xl font-bold">
-              {formatPaise(trayTotal(lines), { trimWhole: true })}
-            </span>
-          </p>
-          <Button variant="ink" size="lg" className="mt-4 w-full" onClick={onCheckout} disabled={disabled}>
-            Pick pickup time
-          </Button>
-        </>
-      )}
+    <aside aria-label="Your bill" className="lift sticky top-20 hidden lg:block">
+      <div className="paper edge-torn-b px-5 pt-5">
+        <p className="text-center font-mono text-xs font-semibold tracking-widest">*** YOUR BILL ***</p>
+        <hr className="tear-line my-3" />
+        {lines.length === 0 ? (
+          <p className="py-6 text-center text-sm text-ink-muted">Nothing yet. Tap the stub next to anything on the rate card.</p>
+        ) : (
+          <>
+            <ul className="space-y-1.5 font-mono text-[14px]">
+              {lines.map((l) => (
+                <li key={`${l.item.id}-${l.quantity}`} className="flex animate-feed items-center gap-2">
+                  <VegMark isVeg={l.item.isVeg} className="size-3.5" />
+                  <span>{l.quantity}×</span>
+                  <span className="min-w-0 flex-1 truncate">{l.item.name}</span>
+                  <span>{formatPaise(linePaise(l.item, l.quantity), { trimWhole: true })}</span>
+                </li>
+              ))}
+            </ul>
+            <hr className="tear-line my-3" />
+            <p className="flex items-baseline justify-between font-mono">
+              <span className="text-sm font-semibold">TOTAL</span>
+              <span key={trayTotal(lines)} className="animate-roll text-2xl font-bold">
+                {formatPaise(trayTotal(lines), { trimWhole: true })}
+              </span>
+            </p>
+            <p className="mt-1 text-right font-mono text-[11px] text-ink-muted">PAY AT COUNTER · CASH / UPI</p>
+            <Button variant="ink" size="lg" className="mb-2 mt-4 w-full" onClick={onCheckout} disabled={disabled}>
+              {disabled ? "Ordering closed" : "Pick pickup time"}
+            </Button>
+          </>
+        )}
+      </div>
     </aside>
   );
 }
