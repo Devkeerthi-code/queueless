@@ -22,9 +22,9 @@ export function TokenEntry({ onSubmit, pending }: { onSubmit: (token: string) =>
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-3">
-      <label htmlFor="token" className="text-sm font-medium">
-        Or type the token
+    <form onSubmit={submit} className="paper edge-perf flex flex-col gap-3 px-4 py-5">
+      <label htmlFor="token" className="caps text-ink-muted">
+        Or type the token no.
       </label>
       <div className="flex gap-2">
         <input
@@ -35,7 +35,7 @@ export function TokenEntry({ onSubmit, pending }: { onSubmit: (token: string) =>
           autoCapitalize="characters"
           autoComplete="off"
           spellCheck={false}
-          className={cn(inputClass, "num condensed h-14 flex-1 text-center text-3xl font-extrabold uppercase tracking-wider")}
+          className={cn(inputClass, "condensed h-14 flex-1 bg-paper text-center text-3xl font-extrabold uppercase tracking-wider")}
         />
         <Button type="submit" variant="ink" size="lg" disabled={!valid} pending={pending}>
           Find
@@ -62,7 +62,7 @@ function Key({ label, onClick, accent, aria }: { label: string; onClick: () => v
       type="button"
       onClick={onClick}
       aria-label={aria}
-      className={cn("press h-12 rounded-slip border text-lg font-bold num", accent ? "border-accent/60 bg-accent/15" : "border-line bg-surface")}
+      className={cn("press h-12 rounded-[3px] font-mono text-lg font-bold shadow-[0_1px_0_rgb(0_0_0/0.18)]", accent ? "bg-accent text-on-accent" : "bg-sunken")}
     >
       {label}
     </button>

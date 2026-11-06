@@ -81,7 +81,7 @@ export function QrScanner({ onCode, paused }: { onCode: (code: string) => void; 
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-slip border border-line bg-ink">
+    <div className="relative aspect-[4/3] overflow-hidden rounded-[6px] border-4 border-[#3a342d] bg-[#151210] shadow-[inset_0_2px_10px_rgb(0_0_0/0.7),0_2px_0_rgb(0_0_0/0.3)]">
       <video ref={videoRef} className={state === "live" ? "size-full object-cover" : "hidden"} playsInline muted aria-label="Camera preview for scanning pickup QR codes" />
       <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
       {state === "live" ? (
@@ -93,8 +93,8 @@ export function QrScanner({ onCode, paused }: { onCode: (code: string) => void; 
           </button>
         </>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-5 text-center text-paper">
-          <p className="text-sm text-paper/80">{MESSAGE[state]}</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-5 text-center text-[#f3ede1]">
+          <p className="text-sm text-[#d8d0c2]">{MESSAGE[state]}</p>
           {(state === "idle" || state === "denied" || state === "unavailable") && (
             <Button variant="accent" onClick={start}>
               {state === "idle" ? "Scan QR with camera" : "Try camera again"}

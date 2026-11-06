@@ -7,7 +7,7 @@ import { walkInAction } from "@/app/actions/orders";
 import { validateGstin } from "@/lib/gstin";
 import { formatPaise } from "@/lib/money";
 import type { MenuItemView } from "@/server/views";
-import { maxFor, trayLines, trayTotal, type Tray } from "../student/tray";
+import { linePaise, maxFor, trayLines, trayTotal, type Tray } from "../student/tray";
 import { Button } from "../ui/button";
 import { cn } from "../ui/cn";
 import { Field, fieldA11y, Input } from "../ui/field";
@@ -64,30 +64,37 @@ export function WalkInScreen({ items }: { items: MenuItemView[] }) {
 
   if (billed) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-10 text-center">
-        <Stamp tone="veg" land className="text-2xl">
-          Billed
-        </Stamp>
-        <p className="num condensed text-token font-extrabold">{billed.token}</p>
-        <p className="text-ink-muted">
-          Sent to the kitchen. Invoice <span className="num font-semibold text-ink">{billed.number}</span> · <span className="num font-semibold text-ink">{formatPaise(billed.totalPaise)}</span>
-        </p>
-        <PrintLinks invoiceId={billed.invoiceId} />
-        <Button variant="accent" size="lg" onClick={() => setBilled(null)} className="mt-2 w-full">
-          New bill
-        </Button>
+      <div className="mx-auto max-w-md px-4 py-10">
+        <div className="lift animate-rise">
+          <div className="paper edge-torn-t flex flex-col items-center gap-4 px-6 pb-6 text-center">
+            <Stamp tone="veg" land className="mt-2 text-2xl">
+              Paid · to kitchen
+            </Stamp>
+            <div className="rounded-[3px] bg-accent px-5 py-2 text-on-accent">
+              <p className="caps text-[10px]">Token no.</p>
+              <p className="condensed text-token font-extrabold">{billed.token}</p>
+            </div>
+            <p className="font-mono text-sm text-ink-muted">
+              MEMO <span className="font-semibold text-ink">{billed.number}</span> · <span className="font-semibold text-ink">{formatPaise(billed.totalPaise)}</span>
+            </p>
+            <PrintLinks invoiceId={billed.invoiceId} />
+            <Button variant="accent" size="lg" onClick={() => setBilled(null)} className="mt-2 w-full">
+              Next memo
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 pb-40 pt-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:pb-10">
+    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-24 pt-5 lg:grid-cols-[minmax(0,1fr)_400px] lg:pb-10">
       <div className="flex min-w-0 flex-col gap-4">
         <div className="flex items-center gap-3">
           <Link href="/counter" className="rounded-slip py-1 text-sm font-semibold text-ink-muted hover:text-ink">
             ← Counter
           </Link>
-          <h1 className="condensed text-3xl font-extrabold">Walk-in bill</h1>
+          <h1 className="condensed text-3xl font-extrabold uppercase">Cash memo</h1>
         </div>
         <Input aria-label="Search items" type="search" placeholder="Search items" value={query} onChange={(e) => setQuery(e.target.value)} />
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
@@ -100,7 +107,7 @@ export function WalkInScreen({ items }: { items: MenuItemView[] }) {
                   type="button"
                   disabled={max === 0 || qty >= max}
                   onClick={() => add(item.id, 1, max)}
-                  className={cn("press flex h-20 w-full flex-col justify-between rounded-slip border p-2.5 text-left disabled:opacity-50", qty ? "border-ink bg-ink text-paper" : "border-line bg-surface hover:border-ink/40")}
+                  className={cn("press flex h-20 w-full flex-col justify-between rounded-[3px] p-2.5 text-left shadow-[0_1px_0_rgb(0_0_0/0.18),0_4px_8px_-4px_rgb(0_0_0/0.3)] disabled:opacity-50", qty ? "bg-accent text-on-accent" : "bg-surface hover:brightness-[.97]")}
                   aria-label={`Add ${item.name}${qty ? `, ${qty} in bill` : ""}`}
                 >
                   <span className="flex items-start gap-1.5">
@@ -108,8 +115,8 @@ export function WalkInScreen({ items }: { items: MenuItemView[] }) {
                     <span className="line-clamp-2 text-sm font-semibold leading-tight">{item.name}</span>
                   </span>
                   <span className="flex items-baseline justify-between text-sm">
-                    <span className="num">{formatPaise(item.pricePaise, { trimWhole: true })}</span>
-                    {max === 0 ? <span className="text-xs">Out</span> : qty > 0 && <span key={qty} className="num animate-stamp font-bold">×{qty}</span>}
+                    <span className="font-mono">{formatPaise(item.pricePaise, { trimWhole: true })}</span>
+                    {max === 0 ? <span className="text-xs">Out</span> : qty > 0 && <span key={qty} className="condensed animate-stamp text-xl font-extrabold">×{qty}</span>}
                   </span>
                 </button>
               </li>
@@ -118,46 +125,69 @@ export function WalkInScreen({ items }: { items: MenuItemView[] }) {
         </ul>
       </div>
 
-      <aside aria-label="Bill" className="slip flex h-fit flex-col gap-4 p-5 lg:sticky lg:top-20">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">Bill</h2>
-        {lines.length === 0 ? (
-          <p className="py-4 text-center text-sm text-ink-muted">Tap items to add them.</p>
-        ) : (
-          <ul className="space-y-2">
-            {lines.map((l) => (
-              <li key={l.item.id} className="flex items-center gap-2 text-[15px]">
-                <span className="min-w-0 flex-1 truncate">{l.item.name}</span>
-                <button type="button" className="press grid size-8 place-items-center rounded-slip border border-line" onClick={() => add(l.item.id, -1, maxFor(l.item))} aria-label={`One less ${l.item.name}`}>
-                  −
-                </button>
-                <span className="num w-6 text-center font-bold">{l.quantity}</span>
-                <button type="button" className="press grid size-8 place-items-center rounded-slip border border-line disabled:opacity-40" disabled={l.quantity >= maxFor(l.item)} onClick={() => add(l.item.id, 1, maxFor(l.item))} aria-label={`One more ${l.item.name}`}>
-                  +
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <details className="rounded-slip border border-line px-3 py-2">
-          <summary className="text-sm font-semibold">Buyer details for a GST invoice (optional)</summary>
-          <div className="mt-3 flex flex-col gap-3 pb-1">
-            <Field label="Buyer name" id="buyer-name" error={fields.buyerName}>
-              <Input {...fieldA11y("buyer-name", fields.buyerName)} value={buyer.name} onChange={(e) => setBuyer({ ...buyer, name: e.target.value })} />
-            </Field>
-            <Field label="Buyer GSTIN" id="buyer-gstin" error={gstinError}>
-              <Input {...fieldA11y("buyer-gstin", gstinError)} className="num uppercase" maxLength={15} value={buyer.gstin} onChange={(e) => setBuyer({ ...buyer, gstin: e.target.value.toUpperCase() })} />
-            </Field>
+      <aside id="memo" aria-label="Cash memo" className="carbon h-fit scroll-mt-20 lg:sticky lg:top-20">
+        <div className="lift">
+          <div className="paper flex flex-col gap-4 rounded-[3px] p-5">
+            <div className="flex items-baseline justify-between border-b-2 border-ink pb-2">
+              <h2 className="condensed text-2xl font-extrabold uppercase">Cash memo</h2>
+              <span className="font-mono text-xs text-ink-muted">No. ______</span>
+            </div>
+            <div className="ruled min-h-[9rem] font-mono text-[14px]">
+              <div className="grid h-9 grid-cols-[2.5rem_minmax(0,1fr)_5rem] items-center gap-2 text-[11px] font-semibold text-ink-muted">
+                <span>QTY</span>
+                <span>PARTICULARS</span>
+                <span className="text-right">AMOUNT</span>
+              </div>
+              {lines.length === 0 ? (
+                <p className="h-9 leading-9 text-ink-muted">Tap items to write them in.</p>
+              ) : (
+                <ul>
+                  {lines.map((l) => (
+                    <li key={l.item.id} className="grid h-9 animate-feed grid-cols-[2.5rem_minmax(0,1fr)_5rem] items-center gap-2">
+                      <span className="flex items-center gap-0.5">
+                        <button type="button" className="press grid size-6 place-items-center rounded-full text-ink-muted hover:bg-sunken hover:text-ink" onClick={() => add(l.item.id, -1, maxFor(l.item))} aria-label={`One less ${l.item.name}`}>
+                          −
+                        </button>
+                        <span className="font-bold">{l.quantity}</span>
+                      </span>
+                      <span className="truncate">{l.item.name}</span>
+                      <span className="text-right">{formatPaise(linePaise(l.item, l.quantity))}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <details className="rounded-[3px] border border-dashed border-line px-3 py-2">
+              <summary className="text-sm font-semibold">Buyer details for a GST invoice (optional)</summary>
+              <div className="mt-3 flex flex-col gap-3 pb-1">
+                <Field label="Buyer name" id="buyer-name" error={fields.buyerName}>
+                  <Input {...fieldA11y("buyer-name", fields.buyerName)} value={buyer.name} onChange={(e) => setBuyer({ ...buyer, name: e.target.value })} />
+                </Field>
+                <Field label="Buyer GSTIN" id="buyer-gstin" error={gstinError}>
+                  <Input {...fieldA11y("buyer-gstin", gstinError)} className="font-mono uppercase" maxLength={15} value={buyer.gstin} onChange={(e) => setBuyer({ ...buyer, gstin: e.target.value.toUpperCase() })} />
+                </Field>
+              </div>
+            </details>
+            <PaymentMode value={mode} onChange={setMode} name="walkin-mode" />
+            <div className="flex items-baseline justify-between border-t-2 border-double border-ink pt-3 font-mono">
+              <span className="text-sm font-semibold">TOTAL</span>
+              <span className="text-3xl font-bold">{formatPaise(trayTotal(lines))}</span>
+            </div>
+            <Button variant="accent" size="lg" pending={pending} disabled={lines.length === 0 || gstinBad} onClick={bill}>
+              {pending ? "Billing" : "Bill and send to kitchen"}
+            </Button>
           </div>
-        </details>
-        <PaymentMode value={mode} onChange={setMode} name="walkin-mode" />
-        <div className="flex items-baseline justify-between border-t border-dashed border-line pt-3">
-          <span className="text-sm text-ink-muted">Approx. total</span>
-          <span className="num text-3xl font-bold">{formatPaise(trayTotal(lines))}</span>
         </div>
-        <Button variant="accent" size="lg" pending={pending} disabled={lines.length === 0 || gstinBad} onClick={bill}>
-          {pending ? "Billing" : "Bill and send to kitchen"}
-        </Button>
       </aside>
+      {lines.length > 0 && (
+        <a href="#memo" className="lift fixed inset-x-3 bottom-3 z-20 lg:hidden">
+          <span className="paper flex items-center gap-3 rounded-[3px] px-4 py-3 font-mono text-sm font-semibold">
+            MEMO · {lines.reduce((n, l) => n + l.quantity, 0)} ITEMS
+            <span className="ml-auto text-lg">{formatPaise(trayTotal(lines))}</span>
+            <span className="rounded-[3px] bg-ink px-2.5 py-1.5 font-sans text-on-ink">Bill ↓</span>
+          </span>
+        </a>
+      )}
     </div>
   );
 }
