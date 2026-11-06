@@ -1,0 +1,382 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  COUNTER
+  KITCHEN
+  OWNER
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  COLLECTED
+  CANCELLED
+  NO_SHOW
+}
+
+enum OrderSource {
+  ONLINE
+  WALK_IN
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+}
+
+enum DocSeries {
+  INV // tax invoice (GST registered)
+  BOS // bill of supply (not registered)
+  CN // credit note
+}
+
+model Canteen {
+  id                 String   @id @default(cuid())
+  name               String
+  address            String
+  gstRegistered      Boolean  @default(false)
+  gstin              String?
+  stateCode          String // 2-digit GST state code, e.g. "33" for Tamil Nadu
+  invoicePrefix      String
+  logoId             String?
+  upiVpa             String?
+  openMinute         Int // minutes after IST midnight
+  closeMinute        Int
+  openDays           Int[] // 0 = Sunday .. 6 = Saturday
+  slotMinutes        Int      @default(15)
+  maxOrdersPerSlot   Int      @default(20)
+  orderCutoffMinutes Int      @default(10)
+  noShowGraceMinutes Int      @default(30)
+  noShowThreshold    Int      @default(2)
+  isDemo             Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  logo          Image?          @relation(fields: [logoId], references: [id], onDelete: SetNull)
+  users         User[]
+  items         MenuItem[]
+  slots         PickupSlot[]
+  orders        Order[]
+  invoices      Invoice[]
+  creditNotes   CreditNote[]
+  docCounters   DocCounter[]
+  tokenCounters TokenCounter[]
+  usageEvents   UsageEvent[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  canteenId    String
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  canteen       Canteen            @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  sessions      Session[]
+  orders        Order[]
+  pushSubs      PushSubscription[]
+  favourites    Favourite[]
+
+  @@index([canteenId, role])
+}
+
+model Session {
+  id        String   @id // sha256 of the cookie token, never the token itself
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  mime      String
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  items    MenuItem[]
+  canteens Canteen[]
+}
+
+model MenuItem {
+  id               String    @id @default(cuid())
+  canteenId        String
+  name             String
+  category         String
+  isVeg            Boolean
+  photoId          String?
+  pricePaise       Int
+  priceIncludesGst Boolean   @default(true)
+  gstRateBp        Int // basis points: 500 = 5%
+  hsnSac           String
+  costPaise        Int
+  dailyQuantity    Int
+  prepMinutes      Int       @default(5)
+  isAvailable      Boolean   @default(true)
+  archivedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  canteen    Canteen      @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  photo      Image?       @relation(fields: [photoId], references: [id], onDelete: SetNull)
+  stock      DailyStock[]
+  lines      OrderLine[]
+  favourites Favourite[]
+
+  @@unique([canteenId, name])
+  @@index([canteenId, category])
+}
+
+/// One row per item per IST business day. `reserved` only moves through
+/// conditional UPDATEs so it can never exceed `capacity` (also a CHECK).
+model DailyStock {
+  itemId       String
+  businessDate DateTime @db.Date
+  capacity     Int
+  reserved     Int      @default(0)
+
+  item MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, businessDate])
+}
+
+/// Created lazily the first time someone books the slot.
+model PickupSlot {
+  id        String   @id @default(cuid())
+  canteenId String
+  startsAt  DateTime
+  endsAt    DateTime
+  capacity  Int
+  booked    Int      @default(0)
+
+  canteen Canteen @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  orders  Order[]
+
+  @@unique([canteenId, startsAt])
+}
+
+model TokenCounter {
+  canteenId    String
+  businessDate DateTime @db.Date
+  lastSeq      Int
+
+  canteen Canteen @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+
+  @@id([canteenId, businessDate])
+}
+
+/// Gap-free document numbering: incremented in the same transaction that
+/// writes the document, so a rollback also rolls back the number.
+model DocCounter {
+  canteenId     String
+  series        DocSeries
+  financialYear String // "2026-27"
+  lastSeq       Int
+
+  canteen Canteen @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+
+  @@id([canteenId, series, financialYear])
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  canteenId      String
+  userId         String?
+  source         OrderSource
+  businessDate   DateTime     @db.Date
+  tokenSeq       Int
+  token          String
+  slotId         String?
+  status         OrderStatus  @default(PLACED)
+  requiresPrepay Boolean      @default(false)
+  estimatePaise  Int
+  paymentMode    PaymentMode?
+  placedAt       DateTime     @default(now())
+  paidAt         DateTime?
+  preparingAt    DateTime?
+  readyAt        DateTime?
+  collectedAt    DateTime?
+  cancelledAt    DateTime?
+  noShowAt       DateTime?
+  stockReleased  Boolean      @default(false)
+
+  canteen Canteen     @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  user    User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  slot    PickupSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  lines   OrderLine[]
+  invoice Invoice?
+
+  @@unique([canteenId, businessDate, tokenSeq])
+  @@index([canteenId, businessDate, status])
+  @@index([userId, placedAt])
+  @@index([slotId])
+}
+
+model OrderLine {
+  id               String  @id @default(cuid())
+  orderId          String
+  itemId           String
+  name             String
+  isVeg            Boolean
+  quantity         Int
+  unitPricePaise   Int
+  priceIncludesGst Boolean
+  gstRateBp        Int
+  hsnSac           String
+  costPaise        Int
+
+  order Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item  MenuItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([itemId])
+}
+
+model Invoice {
+  id             String      @id @default(cuid())
+  canteenId      String
+  orderId        String      @unique
+  series         DocSeries
+  financialYear  String
+  seq            Int
+  number         String
+  issuedAt       DateTime    @default(now())
+  issuedById     String
+  paymentMode    PaymentMode
+  buyerName      String?
+  buyerGstin     String?
+  supplierState  String
+  placeOfSupply  String
+  isInterState   Boolean
+  taxablePaise   Int
+  cgstPaise      Int
+  sgstPaise      Int
+  igstPaise      Int
+  roundOffPaise  Int
+  totalPaise     Int
+
+  canteen     Canteen       @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  lines       InvoiceLine[]
+  creditNotes CreditNote[]
+
+  @@unique([canteenId, series, financialYear, seq])
+  @@unique([canteenId, number])
+  @@index([canteenId, issuedAt])
+}
+
+model InvoiceLine {
+  id             String @id @default(cuid())
+  invoiceId      String
+  itemId         String
+  name           String
+  hsnSac         String
+  quantity       Int
+  unitPricePaise Int
+  gstRateBp      Int
+  costPaise      Int
+  taxablePaise   Int
+  cgstPaise      Int
+  sgstPaise      Int
+  igstPaise      Int
+  totalPaise     Int
+
+  invoice     Invoice          @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  creditLines CreditNoteLine[]
+
+  @@index([invoiceId])
+  @@index([itemId])
+}
+
+model CreditNote {
+  id            String    @id @default(cuid())
+  canteenId     String
+  invoiceId     String
+  financialYear String
+  seq           Int
+  number        String
+  issuedAt      DateTime  @default(now())
+  issuedById    String
+  reason        String
+  taxablePaise  Int
+  cgstPaise     Int
+  sgstPaise     Int
+  igstPaise     Int
+  roundOffPaise Int
+  totalPaise    Int
+
+  canteen Canteen          @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+  invoice Invoice          @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  lines   CreditNoteLine[]
+
+  @@unique([canteenId, financialYear, seq])
+  @@unique([canteenId, number])
+  @@index([invoiceId])
+}
+
+model CreditNoteLine {
+  id            String  @id @default(cuid())
+  creditNoteId  String
+  invoiceLineId String
+  quantity      Int
+  restocked     Boolean
+  taxablePaise  Int
+  cgstPaise     Int
+  sgstPaise     Int
+  igstPaise     Int
+  totalPaise    Int
+
+  creditNote  CreditNote  @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+  invoiceLine InvoiceLine @relation(fields: [invoiceLineId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceLineId])
+}
+
+model Favourite {
+  userId String
+  itemId String
+
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, itemId])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UsageEvent {
+  id        String   @id @default(cuid())
+  canteenId String
+  type      String
+  userId    String?
+  createdAt DateTime @default(now())
+
+  canteen Canteen @relation(fields: [canteenId], references: [id], onDelete: Cascade)
+
+  @@index([canteenId, type, createdAt])
+}
