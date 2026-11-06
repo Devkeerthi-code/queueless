@@ -183,7 +183,7 @@ async function main() {
     orders.push({
       id: orderId, canteenId: canteen.id, userId: opts.userId, source: opts.userId ? "ONLINE" : "WALK_IN", businessDate: opts.day,
       tokenSeq: opts.seq, token: formatToken(opts.seq), slotId: opts.slot?.id ?? null, status: s as Prisma.OrderCreateManyInput["status"],
-      estimatePaise: bill.grossPaise, placedAt: opts.placedAt,
+      estimatePaise: bill.totalPaise, placedAt: opts.placedAt,
       paymentMode: billed ? mode : null, paidAt: billed ? handedAt : null,
       preparingAt: started ? new Date(handedAt.getTime() - 8 * 60_000) : null,
       readyAt: started && s !== "PREPARING" ? new Date(handedAt.getTime() - 2 * 60_000) : null,

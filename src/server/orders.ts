@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { computeBill } from "@/lib/gst";
 import { validateGstin } from "@/lib/gstin";
 import { isActive, mustPrepay, type Status } from "@/lib/noshow";
 import { assertCan } from "@/lib/permissions";
@@ -73,12 +74,10 @@ function snapshotLines(lines: { itemId: string; quantity: number }[], items: Awa
   });
 }
 
-/** Displayed estimate; the invoice recomputes exact GST from the same snapshot. */
-function estimate(lines: ReturnType<typeof snapshotLines>) {
-  return lines.reduce((sum, l) => {
-    const gross = l.unitPricePaise * l.quantity;
-    return sum + (l.priceIncludesGst ? gross : gross + Math.round((gross * l.gstRateBp) / 10_000));
-  }, 0);
+/** The amount the student will be asked for: the same bill the invoice will compute, rounded to the rupee. */
+function estimate(lines: ReturnType<typeof snapshotLines>, gstRegistered: boolean) {
+  const bill = computeBill(lines.map((l) => ({ ...l, key: l.itemId })), gstRegistered ? "INTRA_STATE" : "UNREGISTERED");
+  return bill.totalPaise;
 }
 
 /**
@@ -116,7 +115,7 @@ export async function placeOrder(actor: Actor, input: unknown, now = new Date())
         ...token,
         slotId,
         requiresPrepay: mustPrepay(noShows, canteen.noShowThreshold),
-        estimatePaise: estimate(snapshot),
+        estimatePaise: estimate(snapshot, canteen.gstRegistered),
         placedAt: now,
         lines: { create: snapshot },
       },
@@ -236,7 +235,7 @@ export async function billWalkIn(actor: Actor, input: unknown, now = new Date())
         source: "WALK_IN",
         businessDate: day,
         ...token,
-        estimatePaise: estimate(snapshot),
+        estimatePaise: estimate(snapshot, canteen.gstRegistered),
         paymentMode: data.paymentMode,
         paidAt: now,
         placedAt: now,

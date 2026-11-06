@@ -8,8 +8,14 @@ import { businessDate, formatMinute, istParts } from "@/lib/time";
 import { normaliseToken } from "@/lib/token";
 import { upiPayLink } from "@/lib/upi";
 import { verifyPickupCode } from "@/lib/qr-sign";
+import { computeLine, type BillLineInput } from "@/lib/gst";
 import { prisma } from "./db";
 import { listMenu } from "./menu";
+
+/** A line's amount including GST, so the lines add up to what the counter will charge. */
+function lineTotal(l: Omit<BillLineInput, "key"> & { id: string }, gstRegistered: boolean): number {
+  return computeLine({ ...l, key: l.id }, gstRegistered ? "INTRA_STATE" : "UNREGISTERED").totalPaise;
+}
 
 /* Plain, serialisable shapes the pages and polling endpoints return. Dates are ISO strings. */
 
@@ -27,9 +33,9 @@ export type MenuItemView = {
   remaining: number;
   isAvailable: boolean;
   prepMinutes: number;
+  /** False when the canteen isn't GST registered, so exclusive prices get no tax added. */
+  gstCharged: boolean;
 };
-
-export const LOW_STOCK_AT = 8;
 
 export async function slotViews(canteenId: string, now: Date): Promise<SlotView[]> {
   const canteen = await prisma.canteen.findUniqueOrThrow({ where: { id: canteenId } });
@@ -56,7 +62,7 @@ export async function slotViews(canteenId: string, now: Date): Promise<SlotView[
 }
 
 export async function menuItemViews(canteenId: string, now: Date): Promise<MenuItemView[]> {
-  const items = await listMenu(canteenId, now);
+  const [items, canteen] = await Promise.all([listMenu(canteenId, now), prisma.canteen.findUniqueOrThrow({ where: { id: canteenId }, select: { gstRegistered: true } })]);
   return items.map((i) => ({
     id: i.id,
     name: i.name,
@@ -69,6 +75,7 @@ export async function menuItemViews(canteenId: string, now: Date): Promise<MenuI
     remaining: i.remaining,
     isAvailable: i.isAvailable,
     prepMinutes: i.prepMinutes,
+    gstCharged: canteen.gstRegistered,
   }));
 }
 
@@ -137,7 +144,13 @@ export async function orderView(orderId: string, viewer: { userId: string; role:
     slot: order.slot
       ? { label: formatMinute(istParts(order.slot.startsAt).minuteOfDay), endsLabel: formatMinute(istParts(order.slot.endsAt).minuteOfDay), startsAt: order.slot.startsAt.toISOString() }
       : null,
-    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, isVeg: l.isVeg, unitPricePaise: l.unitPricePaise })),
+    lines: order.lines.map((l) => ({
+      name: l.name,
+      quantity: l.quantity,
+      isVeg: l.isVeg,
+      unitPricePaise: l.unitPricePaise,
+      totalPaise: lineTotal(l, order.canteen.gstRegistered),
+    })),
     estimatePaise: order.estimatePaise,
     invoice: order.invoice,
     canCancel: order.status === "PLACED" && status === "PLACED" && !order.invoice,
@@ -227,7 +240,7 @@ export type CounterOrder = {
   paid: boolean;
   invoice: { id: string; number: string; totalPaise: number } | null;
   estimatePaise: number;
-  lines: { name: string; quantity: number; isVeg: boolean; unitPricePaise: number }[];
+  lines: { name: string; quantity: number; isVeg: boolean; totalPaise: number }[];
 };
 
 /** Finds today's order from a scanned QR (signature checked) or a typed token. */
@@ -257,7 +270,7 @@ export async function counterLookup(canteenId: string, query: { code?: string; t
     paid: order.paidAt !== null,
     invoice: order.invoice,
     estimatePaise: order.estimatePaise,
-    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, isVeg: l.isVeg, unitPricePaise: l.unitPricePaise })),
+    lines: order.lines.map((l) => ({ name: l.name, quantity: l.quantity, isVeg: l.isVeg, totalPaise: lineTotal(l, order.canteen.gstRegistered) })),
   };
 }
 
