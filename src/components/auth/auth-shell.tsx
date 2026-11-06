@@ -6,7 +6,7 @@ import { BrandMark } from "../paper/brand-mark";
  * A ticket fed from a roll: the form is printed on it. When a form inside sets data-torn,
  * the ticket tears away (pure CSS via :has, so it never blocks input or navigation).
  */
-export function AuthShell({ title, subtitle, children, after, wide = false }: { title: string; subtitle?: ReactNode; children: ReactNode; after?: ReactNode; wide?: boolean }) {
+export function AuthShell({ title, subtitle, children, wide = false }: { title: string; subtitle?: ReactNode; children: ReactNode; wide?: boolean }) {
   return (
     <main className={`mx-auto flex min-h-dvh w-full flex-col px-4 py-8 sm:py-12 ${wide ? "max-w-2xl" : "max-w-md"}`}>
       <Link href="/" className="flex items-center gap-2.5 self-start rounded-slip">
@@ -28,7 +28,6 @@ export function AuthShell({ title, subtitle, children, after, wide = false }: { 
           </div>
         </div>
       </div>
-      {after && <div className="mt-6">{after}</div>}
     </main>
   );
 }

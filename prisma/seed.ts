@@ -283,7 +283,6 @@ async function main() {
   });
 
   console.log(`DEMO canteen seeded: ${items.length} items, ${orders.length} orders, ${invoices.length} invoices over ${HISTORY_DAYS + 1} days (up to ${isoDate(today)}).`);
-  console.log(`Log in as owner@${DEMO_DOMAIN}, counter@${DEMO_DOMAIN}, kitchen@${DEMO_DOMAIN} or student@${DEMO_DOMAIN} with DEMO_PASSWORD.`);
 }
 
 main()

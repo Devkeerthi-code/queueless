@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DemoRibbon } from "@/components/app-header";
-import { DemoAccounts } from "@/components/auth/demo-accounts";
 import { BrandMark } from "@/components/paper/brand-mark";
 import { TokenFace } from "@/components/token-face";
 import { ButtonLink } from "@/components/ui/button";
@@ -21,7 +20,6 @@ export default async function Home() {
   if (user) redirect(HOME_FOR_ROLE[user.role]);
   const canteen = await getCanteen();
   if (!canteen) redirect("/setup");
-  const demoPassword = canteen.isDemo ? (process.env.DEMO_PASSWORD ?? "") : "";
 
   return (
     <>
@@ -92,12 +90,6 @@ export default async function Home() {
             Canteen staff use the same app: a kitchen board readable from across the room, a counter scanner that prints GST invoices, and daily sales and wastage reports for the owner.
           </p>
         </section>
-
-        {canteen.isDemo && demoPassword && (
-          <section aria-labelledby="demo" className="pb-16">
-            <DemoAccounts password={demoPassword} headingId="demo" />
-          </section>
-        )}
       </main>
     </>
   );

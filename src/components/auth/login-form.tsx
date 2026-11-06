@@ -8,12 +8,12 @@ import { Button } from "../ui/button";
 import { Field, fieldA11y, Input } from "../ui/field";
 import { useAction } from "../use-action";
 
-export function LoginForm({ initialEmail, demoPassword }: { initialEmail: string; demoPassword: string }) {
+export function LoginForm() {
   const router = useRouter();
   const { run, pending, fields } = useAction();
   const [torn, setTorn] = useState(false);
-  const [email, setEmail] = useState(initialEmail);
-  const [password, setPassword] = useState(initialEmail.endsWith("@demo.queueless.in") ? demoPassword : "");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
