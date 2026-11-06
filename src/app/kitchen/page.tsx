@@ -15,8 +15,8 @@ export default async function KitchenPage() {
   const links = user.role === "OWNER" ? [{ href: "/owner", label: "Dashboard" }, { href: "/counter", label: "Counter" }] : [];
 
   return (
-    <div className="theme-dark min-h-dvh bg-paper text-ink">
-      <AppHeader canteen={canteen} role={user.role} links={links} tone="dark" />
+    <div className="night min-h-dvh">
+      <AppHeader canteen={canteen} role={user.role} links={links} />
       <main>
         <h1 className="sr-only">Kitchen orders</h1>
         <KitchenBoard initial={{ columns, at: now.toISOString() }} items={items} />

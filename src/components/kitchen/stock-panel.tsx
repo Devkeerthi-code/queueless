@@ -27,7 +27,7 @@ export function StockPanel({ items }: { items: MenuItemView[] }) {
   return (
     <>
       <Button variant="outline" size="lg" onClick={() => setOpen(true)}>
-        Out of stock{offCount > 0 && <span className="num rounded-[4px] bg-danger px-1.5 text-sm text-paper">{offCount}</span>}
+        Out of stock{offCount > 0 && <span className="num rounded-[4px] bg-danger px-1.5 text-sm text-on-ink">{offCount}</span>}
       </Button>
       <Sheet variant="drawer" open={open} onClose={() => setOpen(false)} title="What's available" description="Switch an item off and students stop seeing it within seconds.">
         <ul className="divide-y divide-line px-5">
@@ -36,7 +36,7 @@ export function StockPanel({ items }: { items: MenuItemView[] }) {
               <VegMark isVeg={item.isVeg} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-semibold">{item.name}</span>
-                <span className="num text-sm text-ink-muted">{item.remaining} left today</span>
+                <span className="font-mono text-sm text-ink-muted">{item.remaining} left today</span>
               </span>
               <Switch label={available[item.id] ? "On" : "Off"} checked={available[item.id] ?? false} disabled={pending} onChange={(e) => toggle(item, e.target.checked)} aria-label={`${item.name} available`} />
             </li>

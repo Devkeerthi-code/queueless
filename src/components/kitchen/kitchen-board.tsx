@@ -48,11 +48,11 @@ export function KitchenBoard({ initial, items }: { initial: Feed; items: MenuIte
   return (
     <div className="flex min-h-[calc(100dvh-56px)] flex-col">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-line px-4 py-3 sm:px-6">
-        <p className="num condensed text-5xl font-extrabold leading-none" aria-label={`Time now ${formatIstTime(new Date(now))}`}>
+        <p className="led-board px-3 py-1 font-mono text-4xl font-semibold leading-none" aria-label={`Time now ${formatIstTime(new Date(now))}`}>
           {formatIstTime(new Date(now))}
         </p>
         <p className="text-lg">
-          <span className="num font-bold">{toMake}</span> to make · <span className="num font-bold text-veg">{ready}</span> ready
+          <span className="font-mono font-bold">{toMake}</span> to make · <span className="font-mono font-bold text-veg">{ready}</span> on the spike
         </p>
         <LiveDot status={status} />
         <div className="ml-auto">
@@ -63,15 +63,17 @@ export function KitchenBoard({ initial, items }: { initial: Feed; items: MenuIte
       {data.columns.length === 0 ? (
         <div className="grid flex-1 place-items-center px-6 text-center">
           <div>
-            <p className="condensed text-5xl font-extrabold text-ink-muted">No orders yet</p>
-            <p className="mt-3 text-lg text-ink-muted">New pre-orders and walk-ins appear here within a few seconds, grouped by pickup time.</p>
+            <div aria-hidden="true" className="mx-auto mb-6 h-2 w-64 rounded-full bg-gradient-to-b from-[#c9ced4] to-[#6c7178]" />
+            <p className="condensed text-5xl font-extrabold uppercase text-ink-muted">The rail is empty</p>
+            <p className="mt-3 text-lg text-ink-muted">New pre-orders and walk-ins are clipped here within a few seconds, grouped by pickup time.</p>
           </div>
         </div>
       ) : (
         <div className="flex flex-1 snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 py-4 sm:scroll-px-6 sm:px-6" role="list" aria-label="Orders by pickup slot">
           {data.columns.map((col) => (
-            <section key={col.key} role="listitem" aria-label={`Pickup ${col.label}`} className="flex w-[min(86vw,360px)] shrink-0 snap-start flex-col gap-3">
+            <section key={col.key} role="listitem" aria-label={`Pickup ${col.label}`} className="flex w-[min(86vw,360px)] shrink-0 snap-start flex-col gap-4">
               <ColumnHeader column={col} now={now} />
+              <div aria-hidden="true" className="-mb-5 h-2.5 rounded-full bg-gradient-to-b from-[#d7dbe0] via-[#9aa0a6] to-[#5b6066] shadow-[0_2px_3px_rgb(0_0_0/0.5)]" />
               {[...col.orders]
                 .sort((a, b) => RANK[a.status] - RANK[b.status])
                 .map((o) => (
@@ -92,10 +94,10 @@ function ColumnHeader({ column, now }: { column: KitchenColumn; now: number }) {
   const due = minutes === null ? "Paid at counter" : minutes < 0 ? `${-minutes} min late` : minutes === 0 ? "Due now" : `in ${minutes} min`;
   const open = column.orders.filter((o) => o.status !== "READY").length;
   return (
-    <header className={cn("sticky top-0 flex items-baseline gap-3 border-b-4 bg-paper pb-2 pt-1", minutes !== null && minutes < 0 ? "border-danger" : minutes !== null && minutes <= 5 ? "border-warn" : "border-line")}>
-      <h2 className="num condensed text-4xl font-extrabold">{column.label}</h2>
+    <header className={cn("flex items-baseline gap-3 border-b-4 pb-2 pt-1", minutes !== null && minutes < 0 ? "border-danger" : minutes !== null && minutes <= 5 ? "border-warn" : "border-line")}>
+      <h2 className="condensed text-4xl font-extrabold">{column.label}</h2>
       <span className={cn("text-lg font-semibold", tone)}>{due}</span>
-      <span className="num ml-auto text-lg text-ink-muted">{open} open</span>
+      <span className="ml-auto font-mono text-lg text-ink-muted">{open} open</span>
     </header>
   );
 }
