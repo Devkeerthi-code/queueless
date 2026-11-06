@@ -7,7 +7,7 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
   accent: "bg-accent text-on-accent hover:brightness-95 disabled:bg-sunken disabled:text-ink-muted",
-  ink: "bg-ink text-paper hover:bg-ink/90 disabled:bg-sunken disabled:text-ink-muted",
+  ink: "bg-ink text-on-ink hover:bg-ink/90 disabled:bg-sunken disabled:text-ink-muted",
   outline: "border border-line bg-surface text-ink hover:border-ink/40 disabled:text-ink-muted",
   quiet: "text-ink hover:bg-sunken disabled:text-ink-muted",
   danger: "border border-danger/40 bg-surface text-danger hover:bg-danger-soft disabled:text-ink-muted",

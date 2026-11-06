@@ -20,7 +20,7 @@ export function Toaster() {
           success: "border-l-4 border-l-veg",
           error: "border-l-4 border-l-danger",
           warning: "border-l-4 border-l-warn",
-          actionButton: "ml-auto rounded-slip bg-ink px-3 py-1 text-sm font-semibold text-paper",
+          actionButton: "ml-auto rounded-slip bg-ink px-3 py-1 text-sm font-semibold text-on-ink",
         },
       }}
     />

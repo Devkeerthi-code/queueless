@@ -1,80 +1,117 @@
 @import "tailwindcss";
 
-/* Token Slip palette: thermal-paper neutrals, one turmeric accent. Semantic colours only on small marks. */
+/*
+ * "The Counter": two layers on every screen.
+ * The counter top is the page (steel by day, dark teak at night). Everything you read is printed on paper,
+ * and paper stays light in both modes. `.paper` re-scopes the ink variables, so utilities like text-ink
+ * mean "ink on paper" inside a sheet and "ink on the counter" outside it.
+ */
 :root {
-  --paper: #f6f3ec;
-  --surface: #fffdf8;
-  --sunken: #efebe1;
-  --line: #e3ddd0;
+  --counter: #e4e1da;
+  --counter-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)' opacity='.16'/%3E%3C/svg%3E");
+
+  --paper: #f7f2e7;
+  --paper-ink: #1c1a17;
+  --paper-muted: #5c564b;
+  --paper-line: #dad1bf;
+  --paper-sunken: #ede6d6;
+  --paper-veg: #17692d;
+  --paper-nonveg: #8e2c19;
+  --paper-warn: #8f4404;
+  --paper-danger: #b01f18;
+  --paper-accent-ink: #7a4e00;
+
+  /* Counter context (overridden inside .paper). */
   --ink: #1c1a17;
-  --ink-muted: #6b655a;
+  --ink-muted: #56514a;
+  --line: #c9c4b9;
+  --sunken: #d6d2c9;
+  --surface: var(--paper);
+  --on-ink: #f7f2e7;
+  --accent-ink: #6e4600;
+  --veg: #17692d;
+  --nonveg: #8e2c19;
+  --warn: #8f4404;
+  --danger: #b01f18;
+
   --accent: #e8a317;
   --on-accent: #1c1a17;
-  --accent-ink: #7a4e00;
-  --veg: #1f8a3b;
-  --nonveg: #a0341f;
-  --warn: #b45309;
-  --warn-soft: #fdebd3;
-  --danger: #c81e1e;
-  --danger-soft: #fbe3e1;
-  --grain-opacity: 0.08;
+  --stamp: #5b3c8c;
+  --warn-soft: #f9e3c4;
+  --danger-soft: #f6dcd7;
+  --lift: drop-shadow(0 1px 0 rgb(40 30 20 / 0.12)) drop-shadow(0 6px 10px rgb(40 30 20 / 0.12));
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #131210;
-    --surface: #1c1a17;
-    --sunken: #0e0d0c;
-    --line: #2e2b26;
-    --ink: #ede8dd;
-    --ink-muted: #a39c8f;
-    --accent: #f2b33d;
-    --on-accent: #131210;
+    --counter: #17130f;
+    --counter-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .22' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='.18'/%3E%3C/svg%3E");
+
+    /* Paper is dimmed, not inverted, so it doesn't glare at night. */
+    --paper: #e7dfcd;
+    --paper-muted: #504a40;
+    --paper-line: #cbc0aa;
+    --paper-sunken: #dcd2bd;
+
+    --ink: #ede6d8;
+    --ink-muted: #b5ab99;
+    --line: #3b332a;
+    --sunken: #241e18;
+    --on-ink: #17130f;
     --accent-ink: #f2b33d;
-    --veg: #3dba5e;
-    --nonveg: #e0694f;
-    --warn: #f59e0b;
-    --warn-soft: #2a1f0e;
-    --danger: #f05252;
-    --danger-soft: #2c1414;
-    --grain-opacity: 0.05;
+    --veg: #4cc46c;
+    --nonveg: #ee7a60;
+    --warn: #f5a524;
+    --danger: #ff6b5e;
+    --warn-soft: #f3dcb6;
+    --danger-soft: #f0d2cc;
+    --lift: drop-shadow(0 1px 0 rgb(0 0 0 / 0.5)) drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
     color-scheme: dark;
   }
 }
 
-/* The kitchen is always dark: easier on the eyes next to a stove and readable from across the room. */
-.theme-dark {
-  --paper: #131210;
-  --surface: #1c1a17;
-  --sunken: #0e0d0c;
-  --line: #2e2b26;
-  --ink: #ede8dd;
-  --ink-muted: #a39c8f;
-  --accent: #f2b33d;
-  --on-accent: #131210;
+/* The kitchen is always the night counter: dark wood, lit paper tickets. */
+.night {
+  --counter: #17130f;
+  --counter-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .22' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='.18'/%3E%3C/svg%3E");
+  --paper: #e7dfcd;
+  --paper-muted: #504a40;
+  --paper-line: #cbc0aa;
+  --paper-sunken: #dcd2bd;
+  --ink: #ede6d8;
+  --ink-muted: #b5ab99;
+  --line: #3b332a;
+  --sunken: #241e18;
+  --on-ink: #17130f;
   --accent-ink: #f2b33d;
-  --veg: #3dba5e;
-  --nonveg: #e0694f;
-  --warn: #f59e0b;
-  --warn-soft: #2a1f0e;
-  --danger: #f05252;
-  --danger-soft: #2c1414;
+  --veg: #4cc46c;
+  --nonveg: #ee7a60;
+  --warn: #f5a524;
+  --danger: #ff6b5e;
+  --lift: drop-shadow(0 1px 0 rgb(0 0 0 / 0.5)) drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
   color-scheme: dark;
+  background-color: var(--counter);
+  background-image: var(--counter-grain);
+  color: var(--ink);
 }
 
 @theme inline {
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
+  --color-counter: var(--counter);
   --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
   --color-line: var(--line);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
+  --color-on-ink: var(--on-ink);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-accent-ink: var(--accent-ink);
+  --color-stamp: var(--stamp);
   --color-veg: var(--veg);
   --color-nonveg: var(--nonveg);
   --color-warn: var(--warn);
@@ -84,9 +121,9 @@
 }
 
 @theme {
-  --radius-slip: 6px;
+  --radius-slip: 4px;
 
-  --text-token: clamp(6rem, 30vw, 10rem);
+  --text-token: clamp(5.5rem, 28vw, 9.5rem);
   --text-token--line-height: 0.85;
 
   /* Spring with a little overshoot, written as a CSS linear() curve so no animation library is needed. */
@@ -94,9 +131,14 @@
 
   --animate-print: print 180ms var(--ease-spring) both;
   --animate-stamp: stamp 140ms var(--ease-spring) both;
-  --animate-stamp-big: stamp-big 160ms var(--ease-spring) both;
+  --animate-stamp-big: stamp-big 140ms var(--ease-spring) both;
   --animate-roll: roll 140ms var(--ease-spring) both;
   --animate-rise: rise 160ms var(--ease-spring) both;
+  --animate-tear: tear 170ms var(--ease-spring);
+  --animate-tear-away: tear-away 180ms ease-in both;
+  --animate-spike: spike 160ms var(--ease-spring) both;
+  --animate-punch: punch 100ms ease-out both;
+  --animate-feed: feed 150ms ease-out both;
   --animate-shimmer: shimmer 1.4s linear infinite;
 
   @keyframes print {
@@ -109,8 +151,8 @@
   }
   @keyframes stamp {
     from {
-      transform: scale(1.25) rotate(-6deg);
-      opacity: 0.4;
+      transform: scale(1.3) rotate(-8deg);
+      opacity: 0.3;
     }
     to {
       transform: scale(1) rotate(0);
@@ -119,7 +161,7 @@
   }
   @keyframes stamp-big {
     from {
-      transform: scale(1.5) rotate(-14deg);
+      transform: scale(1.6) rotate(-16deg);
       opacity: 0;
     }
     to {
@@ -139,12 +181,58 @@
   }
   @keyframes rise {
     from {
-      transform: translateY(12px);
+      transform: translateY(10px);
       opacity: 0;
     }
     to {
       transform: translateY(0);
       opacity: 1;
+    }
+  }
+  /* A stub tugged off along its perforation, then the next stub is already there. */
+  @keyframes tear {
+    0% {
+      transform: none;
+    }
+    45% {
+      transform: translate(10px, -5px) rotate(7deg);
+    }
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes tear-away {
+    to {
+      transform: translate(48px, 36px) rotate(14deg);
+      opacity: 0;
+    }
+  }
+  /* A ticket pushed down onto the spike: a short drop with a settle. */
+  @keyframes spike {
+    from {
+      transform: translateY(-18px) rotate(-4deg);
+    }
+    to {
+      transform: translateY(0) rotate(-1.2deg);
+    }
+  }
+  @keyframes punch {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  /* One printed line feeding out of the bill printer. */
+  @keyframes feed {
+    from {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(-4px);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+      transform: none;
     }
   }
   @keyframes shimmer {
@@ -163,9 +251,9 @@
     text-size-adjust: 100%;
   }
   body {
-    background: var(--paper);
+    background-color: var(--counter);
+    background-image: var(--counter-grain);
     color: var(--ink);
-    font-feature-settings: "ss01";
     min-height: 100dvh;
   }
   ::selection {
@@ -175,7 +263,7 @@
   :focus-visible {
     outline: 2px solid var(--ink);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 3px;
   }
   button:not(:disabled),
   [role="button"],
@@ -191,52 +279,154 @@
   [hidden] {
     display: none !important;
   }
+
+  /* Anything printed on paper uses paper ink, whatever the counter behind it is. */
+  .paper,
+  .slip,
+  .bg-surface,
+  .bg-warn-soft,
+  .bg-danger-soft,
+  .sheet,
+  .drawer,
+  input,
+  select,
+  textarea {
+    --ink: var(--paper-ink);
+    --ink-muted: var(--paper-muted);
+    --line: var(--paper-line);
+    --sunken: var(--paper-sunken);
+    --surface: var(--paper);
+    --on-ink: var(--paper);
+    --accent-ink: var(--paper-accent-ink);
+    --veg: var(--paper-veg);
+    --nonveg: var(--paper-nonveg);
+    --warn: var(--paper-warn);
+    --danger: var(--paper-danger);
+    color: var(--ink);
+  }
 }
 
 @layer components {
-  /* Thermal-paper grain, only on the page background, never on data. */
-  .grain {
-    position: relative;
-    isolation: isolate;
+  .paper,
+  .slip {
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.05'/%3E%3C/svg%3E");
   }
-  .grain::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  .slip {
+    border-radius: var(--radius-slip);
+    box-shadow:
+      0 1px 0 rgb(40 30 20 / 0.12),
+      0 6px 12px -4px rgb(40 30 20 / 0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    .slip {
+      box-shadow:
+        0 1px 0 rgb(0 0 0 / 0.5),
+        0 10px 18px -6px rgb(0 0 0 / 0.6);
+    }
+  }
+  .night .slip {
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.5),
+      0 10px 18px -6px rgb(0 0 0 / 0.6);
+  }
+
+  /* Shadow for masked paper (masks clip box-shadow, filters don't). Put it on a wrapper. */
+  .lift {
+    filter: var(--lift);
   }
 
   .num {
     font-variant-numeric: tabular-nums;
   }
   .condensed {
-    font-variation-settings: "wdth" 72;
+    font-variation-settings: "wdth" 70;
   }
   .semi-condensed {
-    font-variation-settings: "wdth" 88;
+    font-variation-settings: "wdth" 86;
+  }
+  .caps {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.6875rem;
+    font-weight: 600;
   }
 
-  /* A paper slip: hairline edge plus a crisp one-pixel "stack" shadow instead of a blurry drop shadow. */
-  .slip {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-slip);
-    box-shadow: 0 1px 0 var(--line);
-  }
-  /* Perforated tear edge top and bottom, cut with a mask so it works on any background. */
-  .perforated {
+  /* Edges. Each is a mask, so the counter shows through the holes. */
+  .edge-perf {
     --hole: 5px;
-    border-radius: 0;
     mask:
-      radial-gradient(circle at 50% 0, transparent var(--hole), #000 calc(var(--hole) + 0.5px)) top / 16px 51% repeat-x,
-      radial-gradient(circle at 50% 100%, transparent var(--hole), #000 calc(var(--hole) + 0.5px)) bottom / 16px 51% repeat-x;
+      radial-gradient(circle at 50% 0, #0000 var(--hole), #000 calc(var(--hole) + 0.5px)) top / 16px 51% repeat-x,
+      radial-gradient(circle at 50% 100%, #0000 var(--hole), #000 calc(var(--hole) + 0.5px)) bottom / 16px 51% repeat-x;
+  }
+  .edge-perf-x {
+    --hole: 4px;
+    mask:
+      radial-gradient(circle at 0 50%, #0000 var(--hole), #000 calc(var(--hole) + 0.5px)) left / 51% 12px repeat-y,
+      radial-gradient(circle at 100% 50%, #0000 var(--hole), #000 calc(var(--hole) + 0.5px)) right / 51% 12px repeat-y;
+  }
+  .edge-torn-b {
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+    padding-bottom: 14px;
+  }
+  .edge-torn-t {
+    mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+    padding-top: 14px;
+  }
+  .edge-torn-y {
+    mask:
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 14px 51% repeat-x,
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 51% repeat-x;
+    padding-block: 14px;
+  }
+  /* A hole punched near the top, for tickets that hang on a rail or a spike. */
+  .punched {
+    mask: radial-gradient(circle at 50% 13px, #0000 6px, #000 6.5px);
+  }
+
+  /* Perforation lines drawn as rows of tiny holes in the counter colour. */
+  .perf-v {
+    width: 2px;
+    align-self: stretch;
+    background: radial-gradient(circle, var(--counter) 1.6px, transparent 2px) center / 2px 7px repeat-y;
+  }
+  .perf-h {
+    height: 2px;
+    background: radial-gradient(circle, var(--counter) 1.6px, transparent 2px) center / 7px 2px repeat-x;
   }
   .tear-line {
     border: 0;
-    border-top: 2px dashed var(--line);
+    border-top: 1.5px dashed var(--line);
+  }
+
+  /* Carbon duplicate peeking out behind a sheet. Wrap the sheet in .carbon. */
+  .carbon {
+    position: relative;
+    isolation: isolate;
+  }
+  .carbon::before {
+    content: "";
+    position: absolute;
+    inset: 7px -5px -7px 5px;
+    z-index: -1;
+    border-radius: var(--radius-slip);
+    background: color-mix(in oklab, var(--paper) 82%, #5b6c8c);
+    transform: rotate(0.8deg);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.15);
+  }
+
+  /* Cash-memo ruling. */
+  .ruled {
+    background-image: linear-gradient(transparent calc(100% - 1px), color-mix(in oklab, #3b6bb5 28%, transparent) 0);
+    background-size: 100% 2.25rem;
+  }
+
+  /* Dotted leader between an item name and its price, like a printed rate card. */
+  .leader {
+    flex: 1;
+    min-width: 1rem;
+    border-bottom: 2px dotted color-mix(in oklab, var(--ink) 28%, transparent);
+    transform: translateY(-0.3em);
   }
 
   .hatched {
@@ -245,27 +435,32 @@
 
   .rubber-stamp {
     display: inline-block;
-    border: 3px solid currentColor;
+    border: 3px double currentColor;
     border-radius: 4px;
-    padding: 2px 10px;
+    padding: 1px 9px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-variation-settings: "wdth" 80;
-    mix-blend-mode: multiply;
+    font-variation-settings: "wdth" 78;
+    /* Uneven ink, like a real stamp pad. */
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='s'%3E%3CfeTurbulence baseFrequency='.7' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
   }
-  @media (prefers-color-scheme: dark) {
-    .rubber-stamp {
-      mix-blend-mode: normal;
-    }
+
+  /* The TOKEN NO. board: amber digits on a black panel, the same in both modes. */
+  .led-board {
+    background: #0e0c0a;
+    color: #f2b33d;
+    border: 3px solid #2b241d;
+    border-radius: 6px;
+    box-shadow: inset 0 2px 8px rgb(0 0 0 / 0.8);
   }
 
   .skeleton {
     background: linear-gradient(
       90deg,
-      color-mix(in oklab, var(--ink) 6%, transparent) 25%,
-      color-mix(in oklab, var(--ink) 12%, transparent) 37%,
-      color-mix(in oklab, var(--ink) 6%, transparent) 63%
+      color-mix(in oklab, var(--ink) 7%, transparent) 25%,
+      color-mix(in oklab, var(--ink) 14%, transparent) 37%,
+      color-mix(in oklab, var(--ink) 7%, transparent) 63%
     );
     background-size: 400% 100%;
     animation: var(--animate-shimmer);
@@ -273,7 +468,11 @@
   }
 
   .press {
-    transition: transform 160ms var(--ease-spring), background-color 120ms, border-color 120ms, color 120ms;
+    transition:
+      transform 160ms var(--ease-spring),
+      background-color 120ms,
+      border-color 120ms,
+      color 120ms;
   }
   .press:active:not(:disabled) {
     transform: scale(0.96);
@@ -283,13 +482,15 @@
     margin: auto auto 0;
     width: 100%;
     max-width: 32rem;
-    max-height: 88dvh;
+    max-height: 90dvh;
     border: 0;
-    border-radius: 12px 12px 0 0;
-    background: var(--surface);
-    color: var(--ink);
+    background: transparent;
     padding: 0;
-    transition: translate 180ms var(--ease-spring), overlay 180ms allow-discrete, display 180ms allow-discrete;
+    overflow: visible;
+    transition:
+      translate 180ms var(--ease-spring),
+      overlay 180ms allow-discrete,
+      display 180ms allow-discrete;
     translate: 0 0;
   }
   @starting-style {
@@ -300,11 +501,11 @@
   @media (min-width: 640px) {
     .sheet {
       margin: auto;
-      border-radius: var(--radius-slip);
     }
   }
-  .sheet::backdrop {
-    background: rgb(19 18 16 / 0.45);
+  .sheet::backdrop,
+  .drawer::backdrop {
+    background: rgb(15 12 9 / 0.55);
   }
 
   .drawer {
@@ -313,19 +514,17 @@
     max-height: 100dvh;
     width: min(100%, 30rem);
     border: 0;
-    border-left: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--ink);
+    background: transparent;
     padding: 0;
-    transition: translate 180ms var(--ease-spring), overlay 180ms allow-discrete, display 180ms allow-discrete;
+    transition:
+      translate 180ms var(--ease-spring),
+      overlay 180ms allow-discrete,
+      display 180ms allow-discrete;
   }
   @starting-style {
     .drawer[open] {
       translate: 100% 0;
     }
-  }
-  .drawer::backdrop {
-    background: rgb(19 18 16 / 0.45);
   }
 
   .no-scrollbar {
@@ -345,14 +544,14 @@
     transition-duration: 1ms !important;
   }
   .animate-print {
-    animation: rise-fade 120ms linear both !important;
+    animation: fade-in 120ms linear both !important;
   }
   .skeleton {
     animation: none;
   }
 }
 
-@keyframes rise-fade {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
