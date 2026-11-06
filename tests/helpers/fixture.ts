@@ -18,7 +18,9 @@ export async function removeCanteen(id: string) {
   await prisma.$transaction([prisma.order.deleteMany({ where: { canteenId: id } }), prisma.canteen.delete({ where: { id } })]);
 }
 
-export type Fixture =Awaited<ReturnType<typeof createFixture>>;
+type ItemFields = { name: string; pricePaise: number; priceIncludesGst: boolean; gstRateBp: number; costPaise: number; dailyQuantity: number; isVeg: boolean };
+
+export type Fixture = Awaited<ReturnType<typeof createFixture>>;
 
 export async function createFixture(opts: { gstRegistered?: boolean; maxOrdersPerSlot?: number; stateCode?: string } = {}) {
   const tag = randomBytes(4).toString("hex");
@@ -55,7 +57,7 @@ export async function createFixture(opts: { gstRegistered?: boolean; maxOrdersPe
     return users.map(actor);
   };
 
-  const item = (over: Partial<Parameters<typeof prisma.menuItem.create>[0]["data"]> = {}) =>
+  const item = (over: Partial<ItemFields> = {}) =>
     prisma.menuItem.create({
       data: {
         canteenId: canteen.id,
