@@ -21,17 +21,17 @@ QueueLess fixes both sides:
 
 All screenshots use the clearly labelled DEMO canteen from `npm run db:seed`.
 
-| Student menu (phone) | Pickup slots | Token slip |
+| Rate card (phone) | Token slip | Order history |
 |---|---|---|
-| ![Student menu with live stock](docs/student-menu.png) | ![Pickup slot picker with fill meters](docs/slot-picker.png) | ![Token slip with QR and status](docs/token-slip.png) |
+| ![Rate card with a tear-off add stub per item and the bill pinned to the bottom](docs/student-menu.png) | ![Token slip with the token number, a COLLECTED stamp and the status rail](docs/token-slip.png) | ![Past orders as tickets on a spike](docs/order-history.png) |
 
-| Kitchen board | Counter |
+| Kitchen rail | Counter |
 |---|---|
-| ![Kitchen board grouped by pickup slot](docs/kitchen-board.png) | ![Counter with QR scan, token entry and ready queue](docs/counter.png) |
+| ![Kitchen tickets clipped to a rail, readable from across the kitchen](docs/kitchen-board.png) | ![Counter with QR scan, token entry, the found ticket and the ready board](docs/counter.png) |
 
-| Owner dashboard | 80 mm thermal invoice |
+| Owner day book | 80 mm thermal invoice |
 |---|---|
-| ![Owner dashboard with sales, profit and usage](docs/owner-dashboard.jpg) | ![Thermal tax invoice with GST by rate and UPI QR](docs/invoice-thermal.png) |
+| ![Owner day book with sales, profit and a Z-report receipt](docs/owner-dashboard.png) | ![Thermal tax invoice with GST by rate and UPI QR](docs/invoice-thermal.png) |
 
 ## Features
 
@@ -80,7 +80,7 @@ All screenshots use the clearly labelled DEMO canteen from `npm run db:seed`.
 ## Tech stack
 
 - **Next.js 16** (App Router, Server Actions, Route Handlers) + **TypeScript** (strict)
-- **Tailwind CSS v4** with custom design tokens; Archivo via `next/font`
+- **Tailwind CSS v4** with custom design tokens; Archivo, with IBM Plex Mono for receipt figures, via `next/font`
 - **PostgreSQL** on Neon + **Prisma 7** (driver adapter `@prisma/adapter-pg`) with SQL migrations and CHECK constraints
 - **zod** for validating every input on the server
 - **bcryptjs** passwords, httpOnly session cookies (hashed session ids in the DB)
