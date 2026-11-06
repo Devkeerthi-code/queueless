@@ -179,8 +179,6 @@ npm run dev                   # http://localhost:3000
 
 Without the seed, the first visit opens `/setup`, where you create the canteen and the owner account.
 
-Demo logins (after seeding, password = `DEMO_PASSWORD`): `owner@demo.queueless.in`, `counter@demo.queueless.in`, `kitchen@demo.queueless.in`, `student@demo.queueless.in`.
-
 Checks:
 
 ```bash
@@ -206,7 +204,7 @@ The integration tests use `TEST_DATABASE_URL` if set, otherwise `DATABASE_URL`. 
 | `QR_SECRET` | yes | 32+ random chars |
 | `CRON_SECRET` | yes | 16+ random chars. Vercel Cron sends it as a Bearer token |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | for push | from `npm run vapid`; subject like `mailto:you@college.edu` |
-| `DEMO_PASSWORD` | only for the demo | shown on the landing page while the demo canteen is active |
+| `DEMO_PASSWORD` | only for the demo | password the seed sets on the demo accounts; never shown in the app |
 
 5. Deploy. `vercel.json` schedules `/api/cron/no-shows` daily at 00:00 IST (18:30 UTC). That fits the Hobby plan's one-run-per-day limit.
 6. Open the site on a phone and use "Add to Home Screen" to test push (iOS requires the installed PWA).
