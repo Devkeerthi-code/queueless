@@ -4,6 +4,8 @@ Pre-order, billing, GST and stock control for college canteens: students order i
 
 **Live demo:** TODO: add the Vercel link after deploying.
 
+**Project showcase:** [devkeerthi-code.github.io/queueless](https://devkeerthi-code.github.io/queueless/). Screenshots and a walkthrough of the DEMO canteen. It is not the running app, which needs a server and Postgres.
+
 ## Who is this for and what problem does it solve?
 
 **Students** lose 20+ minutes of a short lunch break standing in the canteen queue, and often reach the counter to find the dish they wanted has sold out.

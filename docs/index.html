@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QueueLess</title>
+<meta name="description" content="QueueLess is a pre-ordering, GST billing, stock and reports app for college canteens. This page is a project showcase with screenshots of the demo canteen.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#e4e1da" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M3 4h22v6a3 3 0 0 0 0 6v8H3v-8a3 3 0 0 0 0-6z' fill='%23e8a317'/%3E%3Ccircle cx='14' cy='8' r='2' fill='%231c1a17'/%3E%3Cpath d='M10.5 14h7v7h-7z' fill='none' stroke='%231c1a17' stroke-width='2'/%3E%3Cpath d='M16 19.5l2.5 2.5' stroke='%231c1a17' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --counter: #e4e1da;
+  --counter-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)' opacity='.16'/%3E%3C/svg%3E");
+  --paper: #f7f2e7;
+  --paper-ink: #1c1a17;
+  --paper-muted: #5c564b;
+  --paper-line: #dad1bf;
+  --paper-sunken: #ede6d6;
+  --paper-accent-ink: #7a4e00;
+
+  --ink: #1c1a17;
+  --ink-muted: #56514a;
+  --line: #c9c4b9;
+  --sunken: #d6d2c9;
+  --accent-ink: #6e4600;
+
+  --accent: #e8a317;
+  --on-accent: #1c1a17;
+  --stamp: #5b3c8c;
+  --stamp-red: #b3261e;
+  --slot: #2a241e;
+  --shadow: 0 1px 0 rgb(40 30 20 / .12), 0 6px 12px -4px rgb(40 30 20 / .18);
+  --lift: drop-shadow(0 1px 0 rgb(40 30 20 / .12)) drop-shadow(0 6px 10px rgb(40 30 20 / .12));
+
+  --font: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 4px;
+  --ease-spring: linear(0, .18 6%, .58 16%, .92 28%, 1.07 40%, 1.09 48%, 1.04 62%, .99 78%, 1);
+  --gutter: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --counter: #17130f;
+    --counter-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .22' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .2 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='.18'/%3E%3C/svg%3E");
+    --paper: #e7dfcd;
+    --paper-muted: #504a40;
+    --paper-line: #cbc0aa;
+    --paper-sunken: #dcd2bd;
+    --ink: #ede6d8;
+    --ink-muted: #b5ab99;
+    --line: #3b332a;
+    --sunken: #241e18;
+    --accent-ink: #f2b33d;
+    --shadow: 0 1px 0 rgb(0 0 0 / .5), 0 10px 18px -6px rgb(0 0 0 / .6);
+    --lift: drop-shadow(0 1px 0 rgb(0 0 0 / .5)) drop-shadow(0 10px 16px rgb(0 0 0 / .45));
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background-color: var(--counter);
+  background-image: var(--counter-grain);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3, p, ol, ul, figure, pre { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--on-accent); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 3px; }
+
+/* Paper re-scopes ink, so text on a slip is always dark whatever the counter is. */
+.paper {
+  --ink: var(--paper-ink);
+  --ink-muted: var(--paper-muted);
+  --line: var(--paper-line);
+  --sunken: var(--paper-sunken);
+  --accent-ink: var(--paper-accent-ink);
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.05'/%3E%3C/svg%3E");
+}
+.slip { border-radius: var(--r); box-shadow: var(--shadow); }
+.lift { filter: var(--lift); }
+
+.wrap { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: var(--gutter); }
+.condensed { font-variation-settings: "wdth" 70; font-stretch: 70%; }
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+.caps { text-transform: uppercase; letter-spacing: .14em; font-size: .6875rem; font-weight: 600; }
+.muted { color: var(--ink-muted); }
+
+/* Edges: masks, so the counter shows through. */
+.edge-perf-x {
+  --hole: 4px;
+  -webkit-mask:
+    radial-gradient(circle at 0 50%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) left / 51% 12px repeat-y,
+    radial-gradient(circle at 100% 50%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) right / 51% 12px repeat-y;
+  mask:
+    radial-gradient(circle at 0 50%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) left / 51% 12px repeat-y,
+    radial-gradient(circle at 100% 50%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) right / 51% 12px repeat-y;
+}
+.edge-perf {
+  --hole: 5px;
+  -webkit-mask:
+    radial-gradient(circle at 50% 0, #0000 var(--hole), #000 calc(var(--hole) + .5px)) top / 16px 51% repeat-x,
+    radial-gradient(circle at 50% 100%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) bottom / 16px 51% repeat-x;
+  mask:
+    radial-gradient(circle at 50% 0, #0000 var(--hole), #000 calc(var(--hole) + .5px)) top / 16px 51% repeat-x,
+    radial-gradient(circle at 50% 100%, #0000 var(--hole), #000 calc(var(--hole) + .5px)) bottom / 16px 51% repeat-x;
+}
+.edge-torn-b {
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+  padding-bottom: 14px;
+}
+.edge-torn-y {
+  -webkit-mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 14px 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 51% repeat-x;
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 14px 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 51% repeat-x;
+  padding-block: 14px;
+}
+.punched {
+  -webkit-mask: radial-gradient(circle at 50% 13px, #0000 6px, #000 6.5px);
+  mask: radial-gradient(circle at 50% 13px, #0000 6px, #000 6.5px);
+}
+.perf-h { height: 2px; background: radial-gradient(circle, var(--counter) 1.6px, transparent 2px) center / 7px 2px repeat-x; }
+.tear-line { border: 0; border-top: 1.5px dashed var(--line); margin: 16px 0; }
+.leader { flex: 1; min-width: 1rem; border-bottom: 2px dotted color-mix(in oklab, var(--ink) 28%, transparent); transform: translateY(-.3em); }
+.carbon { position: relative; isolation: isolate; }
+.carbon::before {
+  content: ""; position: absolute; inset: 7px -5px -7px 5px; z-index: -1;
+  border-radius: var(--r);
+  background: color-mix(in oklab, var(--paper) 82%, #5b6c8c);
+  transform: rotate(.8deg);
+  box-shadow: 0 1px 0 rgb(0 0 0 / .15);
+}
+.rubber-stamp {
+  display: inline-block;
+  border: 3px double currentColor;
+  border-radius: 4px;
+  padding: 1px 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-variation-settings: "wdth" 78;
+  line-height: 1.35;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='s'%3E%3CfeTurbulence baseFrequency='.7' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='s'%3E%3CfeTurbulence baseFrequency='.7' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+}
+.ink-violet { color: var(--stamp); }
+.ink-red { color: var(--stamp-red); }
+
+/* Motion: everything under 200ms. */
+@keyframes print { from { transform: translateY(-104%); } to { transform: none; } }
+@keyframes stamp-big { from { transform: scale(1.6) rotate(-16deg); opacity: 0; } to { transform: scale(1) rotate(-8deg); opacity: 1; } }
+.animate-print { animation: print 180ms var(--ease-spring) 80ms both; }
+.animate-stamp { animation: stamp-big 140ms var(--ease-spring) 300ms both; }
+
+/* Hazard ribbon: the same "this is demo data" ribbon the app shows. */
+.ribbon { background: repeating-linear-gradient(-45deg, #e8a317 0 10px, #1c1a17 10px 20px); padding: 4px var(--gutter); }
+.ribbon p {
+  width: fit-content; max-width: 100%; margin-inline: auto;
+  background: #1c1a17; color: #f2b33d; border-radius: 2px;
+  padding: 1px 8px; text-align: center;
+  font: 600 11px/1.6 var(--mono); letter-spacing: .04em;
+}
+
+.skip {
+  position: absolute; left: var(--gutter); top: -100px; z-index: 50;
+  background: var(--accent); color: var(--on-accent); padding: 8px 12px; border-radius: var(--r); font-weight: 700;
+}
+.skip:focus { top: 8px; }
+
+/* Header */
+.site-head { display: flex; align-items: center; gap: 12px; min-height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; border-radius: var(--r); }
+.brand svg { width: 32px; height: 32px; flex: none; }
+.brand span { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; }
+.site-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.site-nav a.text { display: none; padding: 8px 10px; border-radius: var(--r); font-size: .875rem; font-weight: 600; color: var(--ink-muted); text-decoration: none; transition: color 120ms, background-color 120ms; }
+.site-nav a.text:hover { color: var(--ink); background: var(--sunken); }
+@media (min-width: 760px) { .site-nav a.text { display: inline-block; } }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 16px;
+  border-radius: var(--r); border: 2px solid transparent;
+  font: 700 .9375rem/1.2 var(--font); text-decoration: none;
+  transition: transform 160ms var(--ease-spring), background-color 120ms, border-color 120ms, color 120ms;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(.96); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn-accent { background: var(--accent); color: var(--on-accent); }
+.btn-accent:hover { background: #f0b22f; }
+.btn-outline { border-color: var(--ink); color: var(--ink); }
+.btn-outline:hover { background: var(--ink); color: var(--counter); }
+.btn-sm { min-height: 40px; padding: 8px 12px; font-size: .875rem; }
+
+/* Hero */
+.hero { display: grid; gap: 40px; padding-block: 24px 48px; }
+.hero h1 {
+  font-size: clamp(2.75rem, 12.5vw, 5.75rem);
+  font-weight: 800; text-transform: uppercase;
+  line-height: .9; letter-spacing: -.01em;
+  overflow-wrap: anywhere;
+}
+.hero h1 .muted { display: block; }
+.hero .lede { margin-top: 20px; max-width: 36rem; font-size: 1.125rem; color: var(--ink-muted); }
+.hero .actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+.notice { margin-top: 28px; max-width: 38rem; }
+.notice .paper { padding: 18px 20px; }
+.notice h2 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 1rem; font-weight: 700; }
+.notice h2 .rubber-stamp { font-size: .8125rem; transform: rotate(-3deg); }
+.notice p { margin-top: 8px; font-size: .9375rem; color: var(--ink-muted); }
+.notice p strong { color: var(--ink); }
+.notice code, .facts code { font-family: var(--mono); font-size: .875em; background: var(--sunken); padding: 0 4px; border-radius: 2px; }
+
+/* The token slip feeding out of the printer slot. */
+.token { width: 100%; max-width: 340px; margin-inline: auto; position: relative; }
+.token .slot { position: relative; z-index: 2; height: 10px; margin-inline: 4px; border-radius: 99px; background: var(--slot); box-shadow: inset 0 2px 3px rgb(0 0 0 / .6); }
+.token .feed { margin-top: -6px; overflow: hidden; padding: 0 8px 16px; }
+.token .stub { background: var(--accent); color: var(--on-accent); padding: 24px 20px 20px; text-align: center; }
+.token .stub b { display: block; margin-top: 4px; font-size: clamp(5.5rem, 28vw, 8.5rem); font-weight: 800; line-height: .85; letter-spacing: -.02em; }
+.token .body { padding: 16px 20px 8px; font-family: var(--mono); font-size: .875rem; }
+.token .body li { display: flex; align-items: center; gap: 8px; }
+.token .body li + li { margin-top: 6px; }
+.token .body li span:last-child { margin-left: auto; }
+.token .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; padding-bottom: 8px; }
+.token .foot .rubber-stamp { font-family: var(--font); font-size: 1.125rem; color: var(--stamp); transform: rotate(-8deg); }
+.veg { width: 14px; height: 14px; flex: none; border: 1.5px solid #17692d; border-radius: 2px; display: grid; place-items: center; }
+.veg::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #17692d; }
+.veg.non { border-color: #8e2c19; }
+.veg.non::after { border-radius: 0; width: 0; height: 0; background: none; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #8e2c19; }
+
+@media (min-width: 960px) {
+  .hero { grid-template-columns: 7fr 5fr; align-items: center; gap: 56px; padding-block: 56px 80px; }
+}
+
+/* Section headings */
+.sec { padding-block: 48px; border-top: 1px solid var(--line); }
+.sec-head { display: grid; gap: 8px; max-width: 44rem; }
+.sec-head .caps { color: var(--accent-ink); }
+.sec-head h2 { font-size: clamp(2rem, 8vw, 3.25rem); font-weight: 800; text-transform: uppercase; line-height: .95; }
+.sec-head p { color: var(--ink-muted); font-size: 1.0625rem; }
+
+/* Who it's for: two docket slips side by side. */
+.dockets { margin-top: 28px; display: flex; flex-direction: column; }
+.dockets li { position: relative; padding: 24px 28px; }
+.dockets li + li::before { content: ""; position: absolute; inset: 0 24px auto; border-top: 2px dashed var(--line); }
+.dockets h3 { margin-top: 4px; font-size: 1.25rem; font-weight: 700; }
+.dockets p { margin-top: 8px; color: var(--ink-muted); }
+.dockets .who { color: var(--accent-ink); }
+@media (min-width: 760px) {
+  .dockets { flex-direction: row; }
+  .dockets li { flex: 1; }
+  .dockets li + li::before { inset: 24px auto 24px 0; border-top: 0; border-left: 2px dashed var(--line); }
+}
+
+/* The journey */
+.journey { margin-top: 36px; display: grid; gap: 56px; counter-reset: station; }
+.station { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.station > *, .hero > *, .hood > *, .run > * { min-width: 0; }
+.station-tag { display: grid; gap: 12px; align-content: start; }
+.station-no { display: flex; align-items: baseline; gap: 12px; }
+.station-no b { font-size: 3.5rem; font-weight: 800; line-height: .9; color: var(--accent-ink); }
+.station-no span { font-size: .75rem; }
+.station h3 { font-size: 1.75rem; font-weight: 800; text-transform: uppercase; line-height: 1; }
+.station .says { color: var(--ink-muted); }
+.ticks { display: grid; gap: 8px; margin-top: 4px; }
+.ticks li { position: relative; padding-left: 20px; font-size: .9375rem; }
+.ticks li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 9px; height: 2px; background: var(--accent); }
+.hand-off { display: flex; align-items: center; gap: 10px; margin-top: 8px; font: 600 .8125rem/1.4 var(--mono); color: var(--ink-muted); }
+.hand-off::before { content: ""; width: 24px; border-top: 2px dashed var(--line); }
+
+@media (min-width: 960px) {
+  .journey { position: relative; gap: 96px; padding-left: 40px; }
+  /* The rail the ticket travels along. */
+  .journey::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: repeating-linear-gradient(to bottom, var(--line) 0 8px, transparent 8px 14px); }
+  .station { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 48px; position: relative; }
+  .station::before { content: ""; position: absolute; left: -40px; top: 10px; width: 16px; height: 16px; border-radius: 50%; background: var(--counter); border: 3px solid var(--accent); }
+  .station-tag { position: sticky; top: 24px; }
+}
+
+/* Screenshots pinned on paper. */
+.shot { position: relative; padding: 8px 8px 0; transition: transform 160ms var(--ease-spring); }
+.shot img { border-radius: 2px; background: var(--sunken); }
+.shot figcaption { padding: 10px 4px 12px; font: 400 .8125rem/1.45 var(--mono); color: var(--ink-muted); }
+.shot figcaption b { display: block; color: var(--ink); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .75rem; }
+.shot::after {
+  content: ""; position: absolute; top: -9px; left: 50%; width: 72px; height: 20px; margin-left: -36px;
+  background: color-mix(in oklab, var(--accent) 55%, transparent);
+  transform: rotate(-2deg); border-radius: 1px;
+}
+@media (hover: hover) {
+  .shot:hover { transform: translateY(-3px) rotate(-.4deg); }
+}
+
+/* Phone screens: a snap row on mobile, three across on desktop. */
+.phones {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 232px; gap: 16px;
+  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding: 14px 4px 16px; margin-inline: -4px;
+  scrollbar-width: thin;
+}
+.phones > * { scroll-snap-align: start; }
+.phones:focus-visible { outline-offset: 0; }
+.swipe-hint { font: 400 .75rem/1.4 var(--mono); color: var(--ink-muted); margin-top: -4px; }
+@media (min-width: 760px) {
+  .phones { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); grid-auto-columns: auto; overflow: visible; }
+  .swipe-hint { display: none; }
+}
+.wide-shot { padding-top: 14px; }
+
+.counter-grid { display: grid; gap: 28px; padding-top: 14px; }
+.receipt { width: 100%; max-width: 260px; margin-inline: auto; }
+.receipt .slot { height: 10px; border-radius: 99px; background: var(--slot); box-shadow: inset 0 2px 3px rgb(0 0 0 / .6); position: relative; z-index: 2; }
+.receipt .feed { margin-top: -5px; padding-inline: 8px; }
+.receipt .shot::after { display: none; }
+@media (min-width: 1100px) {
+  .counter-grid { grid-template-columns: 1fr 220px; align-items: start; }
+  .receipt { max-width: none; }
+}
+
+.side-stamp { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+.side-stamp .paper { padding: 10px 14px; font-size: .875rem; }
+.side-stamp .rubber-stamp { font-size: .8125rem; transform: rotate(-4deg); }
+
+/* Under the hood: a Z-report receipt. */
+.hood { margin-top: 28px; display: grid; gap: 32px; }
+.zreport { width: 100%; max-width: 44rem; }
+.zreport .paper { padding: 28px 20px; font-family: var(--mono); }
+.zreport .title { text-align: center; font-weight: 600; letter-spacing: .2em; font-size: .9375rem; }
+.zreport .sub { text-align: center; font-size: .75rem; color: var(--ink-muted); margin-top: 2px; }
+.facts { counter-reset: fact; }
+.facts li { counter-increment: fact; padding-block: 16px; border-top: 1.5px dashed var(--line); }
+.facts li:first-child { border-top: 0; }
+.facts h3 { display: flex; align-items: baseline; gap: 8px; font: 600 .9375rem/1.35 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
+.facts h3::before { content: counter(fact, decimal-leading-zero); color: var(--accent-ink); }
+.facts p { margin-top: 6px; font: 400 .9375rem/1.6 var(--font); color: var(--ink-muted); }
+.facts p code { color: var(--ink); }
+.zreport .end { text-align: center; font-size: .75rem; color: var(--ink-muted); margin-top: 8px; letter-spacing: .1em; }
+
+.stack h3 { font-size: 1.125rem; font-weight: 700; }
+.stack ul { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.stack li { padding: 4px 10px; border: 1.5px solid var(--line); border-radius: var(--r); font: 600 .8125rem/1.5 var(--mono); }
+.stack p { margin-top: 16px; color: var(--ink-muted); font-size: .9375rem; }
+@media (min-width: 960px) {
+  .hood { grid-template-columns: 8fr 4fr; align-items: start; gap: 48px; }
+  .stack { position: sticky; top: 24px; }
+}
+
+/* Run it locally: a cash memo with the commands printed in mono. */
+.run { margin-top: 28px; display: grid; gap: 24px; }
+.terminal { background: #0e0c0a; color: #ede6d8; border: 3px solid #2b241d; border-radius: 6px; box-shadow: inset 0 2px 8px rgb(0 0 0 / .8); padding: 18px 16px; }
+.terminal .caps { color: #f2b33d; }
+.terminal pre { margin-top: 12px; overflow-x: auto; font: 400 .875rem/1.8 var(--mono); white-space: pre; }
+.terminal pre .c { color: #b5ab99; }
+.terminal pre .p { color: #f2b33d; user-select: none; }
+.terminal:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.run-notes .paper { padding: 20px; }
+.run-notes h3 { font-size: 1.0625rem; font-weight: 700; }
+.run-notes ul { margin-top: 8px; display: grid; gap: 8px; font-size: .9375rem; color: var(--ink-muted); }
+.run-notes code { font-family: var(--mono); font-size: .875em; background: var(--sunken); padding: 0 4px; border-radius: 2px; color: var(--ink); }
+@media (min-width: 960px) { .run { grid-template-columns: 7fr 5fr; align-items: start; } }
+
+/* Footer */
+.site-foot { padding-block: 40px 48px; border-top: 1px solid var(--line); display: grid; gap: 16px; }
+.site-foot p { color: var(--ink-muted); font-size: .875rem; max-width: 44rem; }
+.site-foot .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
+  .shot:hover, .btn:hover, .btn:active { transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="ribbon" role="note">
+  <p>PROJECT SHOWCASE · screenshots of the DEMO canteen · not the live app</p>
+</div>
+
+<header class="wrap site-head">
+  <a class="brand" href="#top" aria-label="QueueLess, back to top">
+    <svg viewBox="0 0 28 28" aria-hidden="true">
+      <path d="M3 4h22v6a3 3 0 0 0 0 6v8H3v-8a3 3 0 0 0 0-6z" fill="#e8a317"/>
+      <circle cx="14" cy="8" r="2" fill="var(--counter)"/>
+      <text x="14" y="21.5" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a17" font-family="Archivo, sans-serif">Q</text>
+    </svg>
+    <span class="condensed">QueueLess</span>
+  </a>
+  <nav class="site-nav" aria-label="Sections">
+    <a class="text" href="#journey">The journey</a>
+    <a class="text" href="#hood">Under the hood</a>
+    <a class="text" href="#run">Run it locally</a>
+    <a class="btn btn-outline btn-sm" href="https://github.com/Devkeerthi-code/queueless">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+      Repo
+    </a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="wrap hero" id="top" aria-labelledby="hero-title">
+    <div>
+      <p class="caps" style="color: var(--accent-ink)">Pre-ordering for college canteens</p>
+      <h1 id="hero-title" class="condensed" style="margin-top: 16px">Order from class. <span class="muted">Collect with a token.</span></h1>
+      <p class="lede">QueueLess lets students pre-order canteen food and pick it up with a token, while the canteen gets gap-free GST invoices, stock control and daily numbers. Built with Next.js and PostgreSQL.</p>
+      <div class="actions">
+        <a class="btn btn-accent" href="https://github.com/Devkeerthi-code/queueless">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          View the code on GitHub
+        </a>
+        <a class="btn btn-outline" href="#run">How to run it locally</a>
+      </div>
+
+      <aside class="notice lift" aria-labelledby="notice-title">
+        <div class="paper edge-perf-x">
+          <h2 id="notice-title"><span class="rubber-stamp ink-red">Read first</span> This page is a showcase, not the app</h2>
+          <p>QueueLess needs a server and a Postgres database, so it can't run on GitHub Pages. <strong>Every screenshot below comes from the DEMO canteen</strong> created by <code>npm run db:seed</code>: the menu, orders and people in it are sample data, not a real canteen.</p>
+          <p>To use it, run it on your machine. The steps are <a href="#run">below</a> and in the repo README.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="token" aria-label="Example token slip, as a student sees it">
+      <div class="slot" aria-hidden="true"></div>
+      <div class="feed">
+        <div class="lift animate-print">
+          <div class="carbon">
+            <article class="paper edge-torn-b">
+              <div class="stub">
+                <p class="caps">Example token</p>
+                <b class="condensed">A23</b>
+              </div>
+              <div class="perf-h" aria-hidden="true"></div>
+              <div class="body">
+                <p style="text-align: center">PICKUP 12:45 pm – 1:00 pm</p>
+                <hr class="tear-line">
+                <ul class="num">
+                  <li><span class="veg" role="img" aria-label="Veg"></span> 1× Veg thali <span>₹60</span></li>
+                  <li><span class="veg non" role="img" aria-label="Non-veg"></span> 1× Egg puff <span>₹25</span></li>
+                </ul>
+                <div class="foot">
+                  <span class="num">PAY AT COUNTER · ₹85</span>
+                  <span class="rubber-stamp animate-stamp">Ready</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap sec" aria-labelledby="who-title">
+    <div class="sec-head">
+      <p class="caps">Who it's for</p>
+      <h2 id="who-title" class="condensed">Two problems at one counter</h2>
+    </div>
+    <ol class="dockets lift">
+      <li class="paper edge-perf-x">
+        <p class="caps who">Students</p>
+        <h3>A short lunch break spent in a queue</h3>
+        <p>Students lose 20+ minutes of a short lunch break standing in the canteen queue, and often reach the counter to find the dish they wanted has sold out.</p>
+      </li>
+      <li class="paper edge-perf-x">
+        <p class="caps who">Canteen owners and staff</p>
+        <h3>Paper bills and month-end guesswork</h3>
+        <p>Most college canteens are small contractors who bill on paper. They can't tell which items will run out, they cook food nobody collects, and they only learn their daily profit or GST totals when someone adds up the slips at month end.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="wrap sec" id="journey" aria-labelledby="journey-title">
+    <div class="sec-head">
+      <p class="caps">How it works</p>
+      <h2 id="journey-title" class="condensed">One ticket, four stations</h2>
+      <p>Follow a single order from a student's phone, through the kitchen and the counter, into the owner's day book.</p>
+    </div>
+
+    <ol class="journey">
+      <li class="station" aria-labelledby="st1">
+        <div class="station-tag">
+          <p class="station-no"><b class="condensed num">01</b><span class="caps muted">Student</span></p>
+          <h3 id="st1" class="condensed">Order from class</h3>
+          <p class="says">The student picks from today's menu, chooses a 15-minute pickup slot and gets a short token like A23 with a signed QR code.</p>
+          <ul class="ticks">
+            <li>Live stock on the menu: "only 6 left", "sold out".</li>
+            <li>Slots fill up like meters. Full slots are disabled, and ordering closes a set number of minutes before a slot starts.</li>
+            <li>"Reorder usual" puts the last order back in the tray in one tap.</li>
+            <li>Pay at the counter by cash or UPI. A push notification says when the order is ready.</li>
+          </ul>
+          <p class="hand-off">goes to the kitchen</p>
+        </div>
+        <div>
+          <div class="phones" tabindex="0" role="region" aria-label="Student screenshots, scroll sideways for more">
+            <figure class="shot paper slip">
+              <img src="student-menu.png" width="390" height="780" alt="Student menu on a phone, laid out as a rate card with a tear-off add stub per item and the bill pinned to the bottom" loading="lazy" decoding="async">
+              <figcaption><b>Rate card</b>Menu with veg marks, live stock and the bill pinned below.</figcaption>
+            </figure>
+            <figure class="shot paper slip">
+              <img src="token-slip.png" width="390" height="780" alt="Token slip for order A9 with a COLLECTED stamp, the pickup slot, the paid total and a status rail from Placed to Collected" loading="lazy" decoding="async">
+              <figcaption><b>Token slip</b>Token, pickup slot, total and live status.</figcaption>
+            </figure>
+            <figure class="shot paper slip">
+              <img src="order-history.png" width="390" height="780" alt="Order history showing past orders as tickets on a spike" loading="lazy" decoding="async">
+              <figcaption><b>Order history</b>Past orders as tickets on a spike.</figcaption>
+            </figure>
+          </div>
+          <p class="swipe-hint">Swipe for more screens</p>
+        </div>
+      </li>
+
+      <li class="station" aria-labelledby="st2">
+        <div class="station-tag">
+          <p class="station-no"><b class="condensed num">02</b><span class="caps muted">Kitchen</span></p>
+          <h3 id="st2" class="condensed">Cooked for the slot</h3>
+          <p class="says">Orders reach the kitchen grouped by pickup slot, oldest first, in type big enough to read from across the room.</p>
+          <ul class="ticks">
+            <li>Tap a ticket to move it from Preparing to Ready. The student's phone is notified.</li>
+            <li>Kitchen staff can mark an item out of stock instantly, without the owner.</li>
+          </ul>
+          <div class="side-stamp">
+            <p class="paper slip"><span class="rubber-stamp ink-red">Pay first</span> appears on orders from students with repeated no-shows. The kitchen can't start these until they're paid.</p>
+          </div>
+          <p class="hand-off">goes to the counter</p>
+        </div>
+        <figure class="shot paper slip wide-shot">
+          <img src="kitchen-board.png" width="1280" height="900" alt="Kitchen board with order tickets clipped to a rail and grouped by pickup slot" loading="lazy" decoding="async">
+          <figcaption><b>Kitchen rail</b>Tickets clipped to a rail, grouped by pickup slot.</figcaption>
+        </figure>
+      </li>
+
+      <li class="station" aria-labelledby="st3">
+        <div class="station-tag">
+          <p class="station-no"><b class="condensed num">03</b><span class="caps muted">Counter</span></p>
+          <h3 id="st3" class="condensed">Scan, pay, hand over</h3>
+          <p class="says">The counter scans the QR with the phone camera or types the token, takes cash or UPI, and hands the food over. That moment issues the invoice.</p>
+          <ul class="ticks">
+            <li>A proper GST invoice, or a Bill of Supply, with gap-free numbering.</li>
+            <li>Walk-in billing with an optional buyer name and GSTIN. An inter-state buyer gets IGST.</li>
+            <li>Invoice PDFs in A4 and 80 mm thermal layouts, with GST by rate, the amount in words and a UPI QR.</li>
+          </ul>
+          <p class="hand-off">goes into the day book</p>
+        </div>
+        <div class="counter-grid">
+          <figure class="shot paper slip">
+            <img src="counter.png" width="1440" height="900" alt="Counter screen with a QR scan panel, token entry, the found ticket A1 with its items and total, and a ready board" loading="lazy" decoding="async">
+            <figcaption><b>Counter</b>QR scan, token entry, the found ticket and the ready board.</figcaption>
+          </figure>
+          <div class="receipt">
+            <div class="slot" aria-hidden="true"></div>
+            <div class="feed">
+              <figure class="shot paper slip" style="padding-top: 0">
+                <img src="invoice-thermal.png" width="604" height="1234" alt="80 mm thermal tax invoice with items, GST split by rate, round-off, amount in words and a UPI QR code" loading="lazy" decoding="async">
+                <figcaption><b>80 mm invoice</b>GST by rate and a UPI QR.</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="station" aria-labelledby="st4">
+        <div class="station-tag">
+          <p class="station-no"><b class="condensed num">04</b><span class="caps muted">Owner</span></p>
+          <h3 id="st4" class="condensed">The day book</h3>
+          <p class="says">The owner sees the day's numbers without adding up slips: sales, profit, GST by rate, and what was cooked but never collected.</p>
+          <ul class="ticks">
+            <li>Top and slow items, a peak-slot heatmap of the real lunch rush, no-show rate and wasted items, each exportable to CSV.</li>
+            <li>A suggested quantity for tomorrow: the average of the last 4 same weekdays plus 10%.</li>
+            <li>Credit notes against an invoice, partial or full.</li>
+            <li>Menu, GST rate and HSN/SAC per item, canteen settings and staff accounts.</li>
+          </ul>
+        </div>
+        <figure class="shot paper slip wide-shot">
+          <img src="owner-dashboard.png" width="1440" height="900" alt="Owner day book with sales today, profit, orders, bills, no-shows and wasted items, a sales and profit chart, best sellers, slow movers and a Z-report receipt with GST by rate" loading="lazy" decoding="async">
+          <figcaption><b>Owner day book</b>Sales, profit and a Z-report receipt with GST by rate.</figcaption>
+        </figure>
+      </li>
+    </ol>
+  </section>
+
+  <section class="wrap sec" id="hood" aria-labelledby="hood-title">
+    <div class="sec-head">
+      <p class="caps">Under the hood</p>
+      <h2 id="hood-title" class="condensed">The parts that have to be right</h2>
+      <p>A canteen app is mostly simple screens. These are the places where a shortcut would cost the canteen money or break GST invoicing rules.</p>
+    </div>
+
+    <div class="hood">
+      <div class="zreport lift">
+        <div class="paper edge-torn-y">
+          <p class="title">*** BUILD REPORT ***</p>
+          <p class="sub">QUEUELESS · 5 ITEMS</p>
+          <hr class="tear-line">
+          <ol class="facts">
+            <li>
+              <h3>Stock and slots in one transaction</h3>
+              <p>Placing an order reserves every item and the pickup slot inside a single Postgres transaction, using a conditional <code>UPDATE … WHERE reserved + q &lt;= capacity</code>. When 50 students race for the last 10 samosas, the 11th sees zero rows updated and the whole order rolls back. A CHECK constraint backs it up, and items are locked in id order so two orders can't deadlock.</p>
+            </li>
+            <li>
+              <h3>Gap-free invoice numbers per financial year</h3>
+              <p>Postgres sequences never roll back, so a failed bill would leave a hole. Invoices take their number from a counter row per canteen, series and financial year, incremented in the same transaction that writes the invoice. Numbers are issued only at payment or hand-over, so cancelled and no-show orders never use one.</p>
+            </li>
+            <li>
+              <h3>GST in integer paise</h3>
+              <p>No floats anywhere. GST is computed per line as CGST plus SGST, or IGST for an inter-state buyer. For GST-inclusive prices the taxable value is back-calculated so the bill equals the menu price exactly and CGST always equals SGST. A test sweeps thousands of price and rate combinations for paisa drift.</p>
+            </li>
+            <li>
+              <h3>HMAC-signed QR pickup code</h3>
+              <p>Each order gets a short daily token and a QR code signed with a server secret, which the counter scans with the phone camera. The server checks the signature before it shows the order, so a code can't be made up by editing the token.</p>
+            </li>
+            <li>
+              <h3>No-shows, checked on every read</h3>
+              <p>Every read works out whether an order is overdue, so the screens stay right even if the cron never ran. A daily cron makes no-shows permanent and gives back stock the kitchen never started. Students over the no-show limit must pay first, and the server blocks the kitchen from starting their order until they do.</p>
+            </li>
+          </ol>
+          <p class="end">*** END OF REPORT ***</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h3>Stack</h3>
+        <ul aria-label="Tech stack">
+          <li>Next.js 16</li>
+          <li>TypeScript</li>
+          <li>Tailwind CSS v4</li>
+          <li>PostgreSQL</li>
+          <li>Prisma 7</li>
+          <li>zod</li>
+          <li>pdf-lib</li>
+          <li>jsQR</li>
+          <li>web-push</li>
+          <li>Vitest</li>
+        </ul>
+        <p>Roles are enforced in every server action and API route, not just hidden in the UI. Live screens poll small JSON endpoints every 4 seconds instead of holding WebSockets, because serverless functions can't keep them open.</p>
+        <p>The README covers the architecture diagram, design decisions and an honest list of what breaks at scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap sec" id="run" aria-labelledby="run-title">
+    <div class="sec-head">
+      <p class="caps">Run it locally</p>
+      <h2 id="run-title" class="condensed">Five commands to your own canteen</h2>
+      <p>You need Node 20+ and a Postgres database. A free Neon project works.</p>
+    </div>
+
+    <div class="run">
+      <div class="terminal">
+        <p class="caps">Terminal</p>
+<pre tabindex="0" aria-label="Commands to run QueueLess locally"><span class="p">$ </span>npm install
+<span class="p">$ </span>cp .env.example .env   <span class="c"># then fill in the values</span>
+<span class="p">$ </span>npm run db:deploy      <span class="c"># apply migrations</span>
+<span class="p">$ </span>npm run db:seed        <span class="c"># optional: the DEMO canteen</span>
+<span class="p">$ </span>npm run dev            <span class="c"># http://localhost:3000</span></pre>
+      </div>
+      <div class="run-notes lift">
+        <div class="paper edge-perf">
+          <div style="padding-block: 6px">
+            <h3>Good to know</h3>
+            <ul>
+              <li>Fill in <code>DATABASE_URL</code>, <code>QR_SECRET</code>, <code>CRON_SECRET</code> and <code>DEMO_PASSWORD</code>. Every variable is explained in <code>.env.example</code>.</li>
+              <li>Without the seed, the first visit opens <code>/setup</code>, where you create the canteen and the owner account.</li>
+              <li>After seeding, log in as <code>owner@demo.queueless.in</code>, <code>counter@</code>, <code>kitchen@</code> or <code>student@</code> with your <code>DEMO_PASSWORD</code>.</li>
+              <li>Push notifications are optional: <code>npm run vapid</code> generates the keys.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap site-foot">
+  <div class="row">
+    <a class="btn btn-accent" href="https://github.com/Devkeerthi-code/queueless">View the code on GitHub</a>
+  </div>
+  <p>All screenshots show the clearly labelled DEMO canteen with sample data. GST rates and rules change: rates are editable per item and never hard-coded, and anyone using this for real billing should verify them with a chartered accountant. Camera scanning and push delivery still need testing on real phones.</p>
+</footer>
+</body>
+</html>
