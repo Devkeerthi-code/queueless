@@ -19,13 +19,12 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const demoPassword = canteen.isDemo ? (process.env.DEMO_PASSWORD ?? "") : "";
 
   return (
-    <AuthShell title="Log in" subtitle={`Students and staff of ${canteen.name} use the same login.`}>
+    <AuthShell
+      title="Log in"
+      subtitle={`Students and staff of ${canteen.name} use the same login.`}
+      after={demoPassword ? <DemoAccounts password={demoPassword} headingId="demo" /> : undefined}
+    >
       <LoginForm key={loginEmail} initialEmail={loginEmail} demoPassword={demoPassword} />
-      {demoPassword && (
-        <div className="mt-10">
-          <DemoAccounts password={demoPassword} headingId="demo" />
-        </div>
-      )}
     </AuthShell>
   );
 }

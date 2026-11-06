@@ -11,16 +11,21 @@ import { useAction } from "../use-action";
 export function LoginForm({ initialEmail, demoPassword }: { initialEmail: string; demoPassword: string }) {
   const router = useRouter();
   const { run, pending, fields } = useAction();
+  const [torn, setTorn] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState(initialEmail.endsWith("@demo.queueless.in") ? demoPassword : "");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    run(() => loginAction({ email, password }), { onOk: ({ home }) => router.replace(home) });
+    run(() => loginAction({ email, password }), { onOk: ({ home }) => {
+        setTorn(true);
+        router.replace(home);
+      },
+    });
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-4" noValidate data-torn={torn || undefined}>
       <Field label="Email" id="email" error={fields.email}>
         <Input {...fieldA11y("email", fields.email)} type="email" autoComplete="email" inputMode="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </Field>

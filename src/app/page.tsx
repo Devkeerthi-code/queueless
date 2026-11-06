@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DemoRibbon } from "@/components/app-header";
 import { DemoAccounts } from "@/components/auth/demo-accounts";
+import { BrandMark } from "@/components/paper/brand-mark";
 import { TokenFace } from "@/components/token-face";
 import { ButtonLink } from "@/components/ui/button";
 import { VegMark } from "@/components/ui/veg-mark";
@@ -26,10 +27,8 @@ export default async function Home() {
     <>
       {canteen.isDemo && <DemoRibbon />}
       <header className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-        <span aria-hidden="true" className="grid size-8 place-items-center rounded-[5px] bg-accent font-extrabold text-on-accent condensed">
-          Q
-        </span>
-        <span className="font-semibold tracking-tight">QueueLess</span>
+        <BrandMark className="size-8" />
+        <span className="condensed text-xl font-extrabold uppercase">QueueLess</span>
         <span className="hidden text-sm text-ink-muted sm:inline">at {canteen.name}</span>
         <Link href="/login" className="ml-auto rounded-slip px-3 py-2 text-sm font-semibold hover:bg-sunken">
           Log in
@@ -39,8 +38,8 @@ export default async function Home() {
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="grid items-center gap-10 py-8 lg:grid-cols-12 lg:py-16">
           <div className="lg:col-span-7">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-ink">{canteen.name}</p>
-            <h1 className="condensed mt-4 text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold leading-[0.92] tracking-[-0.02em]">
+            <p className="caps text-accent-ink">{canteen.name}</p>
+            <h1 className="condensed mt-4 text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.01em]">
               Lunch break is short. <span className="text-ink-muted">Don&apos;t spend it in the queue.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-ink-muted">
@@ -57,32 +56,33 @@ export default async function Home() {
           </div>
           <div className="mx-auto w-full max-w-[340px] lg:col-span-5">
             <TokenFace token="A23" caption="Example token">
-              <p className="mt-2 text-center text-sm text-ink-muted">Pickup 12:45 pm to 1:00 pm</p>
-              <hr className="tear-line my-5" />
-              <ul className="space-y-2 text-[15px]">
+              <p className="text-center font-mono text-sm">PICKUP 12:45 pm – 1:00 pm</p>
+              <hr className="tear-line my-4" />
+              <ul className="space-y-1.5 font-mono text-[14px]">
                 <li className="flex items-center gap-2">
-                  <VegMark isVeg /> 1× Veg thali <span className="num ml-auto">₹60</span>
+                  <VegMark isVeg /> 1× Veg thali <span className="ml-auto">₹60</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <VegMark isVeg={false} /> 1× Egg puff <span className="num ml-auto">₹25</span>
+                  <VegMark isVeg={false} /> 1× Egg puff <span className="ml-auto">₹25</span>
                 </li>
               </ul>
-              <div className="mt-6 flex items-center justify-between">
-                <span className="text-sm text-ink-muted">Pay at counter</span>
-                <span className="rubber-stamp -rotate-6 text-veg">Ready</span>
+              <div className="mt-4 flex items-center justify-between pb-2">
+                <span className="font-mono text-sm">PAY AT COUNTER · ₹85</span>
+                <span className="rubber-stamp -rotate-6 text-lg text-veg">Ready</span>
               </div>
             </TokenFace>
           </div>
         </section>
 
         <section aria-labelledby="how" className="border-t border-line py-12">
-          <h2 id="how" className="text-sm font-semibold uppercase tracking-[0.18em] text-ink-muted">
+          <h2 id="how" className="condensed text-3xl font-extrabold uppercase">
             How it works
           </h2>
-          <ol className="mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-slip border border-line bg-line md:grid-cols-3">
-            {STEPS.map((s) => (
-              <li key={s.n} className="bg-surface p-6">
-                <span className="num condensed text-4xl font-extrabold text-accent-ink">{s.n}</span>
+          <ol className="lift mt-6 flex flex-col md:flex-row">
+            {STEPS.map((s, i) => (
+              <li key={s.n} className="paper edge-perf-x relative flex-1 px-7 py-6">
+                {i > 0 && <span aria-hidden="true" className="absolute inset-x-6 top-0 border-t-2 border-dashed border-line md:hidden" />}
+                <span className="condensed text-5xl font-extrabold text-accent-ink">{s.n}</span>
                 <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
                 <p className="mt-2 text-ink-muted">{s.body}</p>
               </li>
